@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas con forme</title>
+</head>
+<body>
+    <canvas id="myCanvas" width="800" height="100"></canvas>
+
+    <script>
+        // Obtaining Canvas Reference
+        var canvas = document.getElementById("myCanvas");
+        var context = canvas.getContext("2d");
+
+        // Green Rectangle
+        context.beginPath();
+        context.rect(20, 20, 100, 60);
+        context.strokeStyle = "green";
+        context.lineWidth = 4;
+        context.stroke();
+
+        // Blue Circle
+        context.beginPath();
+        context.arc(160, 50, 30, 0, 2 * Math.PI);
+        context.strokeStyle = "blue";
+        context.lineWidth = 4;
+        context.stroke();
+
+        // Red Square
+        context.beginPath();
+        context.rect(220, 20, 80, 80);
+        context.strokeStyle = "red";
+        context.lineWidth = 4;
+        context.stroke();
+
+        // Yellow Line
+        context.beginPath();
+        context.moveTo(320, 20);
+        context.lineTo(320, 80);
+        context.strokeStyle = "yellow";
+        context.lineWidth = 4;
+        context.stroke();
+
+        // Pink Triangle
+        context.beginPath();
+        context.moveTo(380, 20);
+        context.lineTo(440, 20);
+        context.lineTo(410, 60);
+        context.closePath();
+        context.strokeStyle = "pink";
+        context.lineWidth = 4;
+        context.stroke();
+    </script>
+</body>
+</html>

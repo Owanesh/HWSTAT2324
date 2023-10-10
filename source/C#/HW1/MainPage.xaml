@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="HW1.MainPage">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Spacing="25"
+            Padding="30,0"
+            VerticalOptions="Center">
+
+            <!-- Blue Circle -->
+            <BoxView Color="Blue" WidthRequest="100" HeightRequest="100" CornerRadius="50" HorizontalOptions="Center" VerticalOptions="Center"/>
+
+            <!-- Red Square -->
+            <BoxView Color="#FF0000" WidthRequest="100" HeightRequest="100" HorizontalOptions="Center" VerticalOptions="Center"/>
+
+            <!-- Green Rectangle -->
+            <BoxView Color="#009000" WidthRequest="150" HeightRequest="75" HorizontalOptions="Center" VerticalOptions="Center"/>
+
+            <!-- Yellow Dot -->
+            <BoxView Color="#FFC900" WidthRequest="10" HeightRequest="10" HorizontalOptions="Center" VerticalOptions="Center"/>
+
+            <!-- Dark Blue Line -->
+            <BoxView Color="#07079D" WidthRequest="200" HeightRequest="2" HorizontalOptions="Center" VerticalOptions="Center"/>
+
+            <!-- Yellow Triangle -->
+            <Path x:Name="trianglePath" Data="M0,0 L50,100 L100,0 Z" Fill="Yellow" WidthRequest="100" HeightRequest="100" HorizontalOptions="Center" VerticalOptions="Center" />
+
+            <Label Text="Write a program in C# or VB.NET that creates a window containing a single line, point, circle and triangle" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
+
