@@ -10,11 +10,11 @@ Statistics is becoming increasingly important in the field of cybersecurity for 
 
 2. **Intrusion Detection**: Statistical models are employed in intrusion detection systems to detect and respond to unauthorized access or cyberattacks. These systems use statistical techniques to identify unusual behavior.
 
-3. **Incident Response**: After a security incident, statistics can help in analyzing data logs and other sources of information to understand the extent of the breach and the methods used by attackers.
+3. **Incident Response**: After a security incident, statistics can help in analyzing data logs and other sources of information to understand the extent of the breach and the methods used by attackers. [ref](https://securityscorecard.com/blog/how-to-use-incident-response-metrics/)
 
-4. **Risk Assessment**: Statistics is used to assess the risks associated with various cybersecurity threats and vulnerabilities. This helps organizations prioritize security measures and allocate resources effectively.
+4. **Risk Assessment**: Statistics is used to assess the risks associated with various cybersecurity threats and vulnerabilities. This helps organizations prioritize security measures and allocate resources effectively. [ref](https://iopscience.iop.org/article/10.1088/1757-899X/396/1/012029/pdf)
 
-5. **Forensics**: In cyber forensics, statistical methods can be used to trace and analyze digital evidence in cases of cybercrimes.
+5. **Forensics**: In cyber forensics, statistical methods can be used to trace and analyze digital evidence in cases of cybercrimes. [ref](https://farid.berkeley.edu/downloads/publications/ih04.pdf)
 
 **Descriptive vs. Inferential Statistics**:
 
