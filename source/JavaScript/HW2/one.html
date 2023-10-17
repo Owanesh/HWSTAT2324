@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>[HW2.1] Frequency and Joint Distribution calculator</title>
+</head>
+
+<body>
+  <h1>[HW2.1] Frequency and Joint Distribution calculator</h1>
+  <input type="file" id="fileInput" accept=".tsv" />
+  <br><br>
+  <div id="columnCheckboxes">
+  </div>
+  <button id="calculateButton">Calculate frequencies</button>
+  <button id="calculateDistributionButton">Calculate Joint Distribution</button>
+  <div id="results">
+  </div>
+  <pre>* some values were modified by script to avoid typo-errors, to know more about manipulation check cleanPossibleTypos() function in utils.js</pre>
+  <script src="utils.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const fileInput = document.getElementById("fileInput");
+      const columnCheckboxes = document.getElementById("columnCheckboxes");
+      const calculateFrequenciesButton = document.getElementById("calculateButton");
+      const calculateDistributionButton = document.getElementById("calculateDistributionButton");
+      const resultsDiv = document.getElementById("results");
+
+      let data = [];
+
+      fileInput.addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          const content = e.target.result;
+          data = parseTSV(content);
+          renderColumnCheckboxes(data[0]);
+        };
+
+        reader.readAsText(file);
+      });
+
+      calculateFrequenciesButton.addEventListener("click", function () {
+        const selectedColumns = getSelectedColumns();
+        const frequencies = createFrequencies(data, selectedColumns);
+        renderResults(frequencies, false);
+      });
+      calculateDistributionButton.addEventListener("click", function () {
+        const selectedColumns = getSelectedColumns();
+        const jointDistribution = createJointDistribution(data, selectedColumns);
+        renderResults(jointDistribution, true);
+
+      });
+
+
+
+
+      function createFrequencies(data, selectedColumns) {
+        const frequencies = {};
+        selectedColumns.forEach(column => {
+          frequencies[column] = {};
+          data.slice(1).forEach(row => {
+            row.forEach(eRow => {
+              const values = eRow[column].split(',').map(value => value.trim().toUpperCase());
+              values.forEach(value => {
+                if (value) {
+                  if (!frequencies[column][value]) {
+                    frequencies[column][value] = 1;
+                  } else {
+                    frequencies[column][value]++;
+                  }
+                }
+              });
+            });
+          });
+        });
+        // Ordina le frequenze dal maggiore al minore
+        for (const column in frequencies) {
+          frequencies[column] = Object.fromEntries(
+            Object.entries(frequencies[column]).sort((a, b) => b[1] - a[1])
+          );
+        }
+        return frequencies;
+      }
+
+      /*
+      
+      */
+      function createJointDistribution(data, selectedColumns) {
+        const jointDistribution = {};
+        data.slice(1).forEach(row => {
+          row.forEach(eRow => {
+
+            const key = selectedColumns.map(column => {
+              const values = eRow[column].split(',').map(value => value.trim().toUpperCase());
+              return values;
+            });
+            if (!jointDistribution[key]) {
+              jointDistribution[key] = 1;
+            } else {
+              jointDistribution[key]++;
+            }
+          });
+        });
+
+        // Calculate occorrences
+        const totalObservations = data.length - 1; // Escludi l'intestazione
+        for (const key in jointDistribution) {
+          jointDistribution[key] /= totalObservations;
+        }
+
+        return jointDistribution;
+      }
+
+
+
+      function renderResults(data, isJointDistribution) {
+        resultsDiv.innerHTML = '';
+
+        if (isJointDistribution) {
+          for (const joint in data) {
+            const header = document.createElement("h3");
+            header.style.color = "Green";
+            header.innerText = "Combination: " + joint
+
+            const probability = data[joint];
+            const ul = document.createElement("ul");
+            const li = document.createElement("li");
+            li.style.color = "red";
+            li.innerText = `Occourrence: ${probability}`;
+            ul.appendChild(li);
+
+            resultsDiv.appendChild(header);
+            resultsDiv.appendChild(ul);
+          }
+        } else {
+          resultsDiv.innerHTML = '';
+          for (const column in data) {
+            const header = document.createElement("h2");
+            header.style.color = "orange";
+            header.innerText = column;
+            const ul = document.createElement("ul");
+            for (const value in data[column]) {
+              const li = document.createElement("li");
+              const freq=calculateFrequencies(data[column],data[column][value])
+              li.innerHTML = `<span style="color: gray">${value}</style> - <span style="color: green">Frequenza Assoluta: ${freq["abs"]}</style> <span style="color: blue">Relative Frequency: ${freq["rel"]}</span> <span style="color: purple">Percentual Frequency: ${freq["per"]} %</span>`;
+              ul.appendChild(li);
+            }
+            resultsDiv.appendChild(header);
+            resultsDiv.appendChild(ul);
+          }
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
