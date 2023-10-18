@@ -3,8 +3,8 @@ title:            HWSTAT2324
 author:           Owanesh
 version:          1.0
 
-baseurl: ''
-url:  'https://owanesh.github.io/HWSTAT2324'
+baseurl: '/HWSTAT2324'
+url:  'https://owanesh.github.io/'
 toc:
   enabled: true
   h_min: 1
