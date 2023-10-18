@@ -3,14 +3,14 @@ title:            HWSTAT2324
 author:           Owanesh
 version:          1.0
 
-baseurl:          ''
-
-# bootstrap: use the remote theme for the site itself
-
+baseurl: ''
+url:  'https://owanesh.github.io/HWSTAT2324'
 toc:
   enabled: true
   h_min: 1
   h_max: 3
+
+remote_theme: sighingnow/jekyll-gitbook
 
 # customize the link favicon in header, will be {{site.baseurl}}/{{site.favicon_path}}
 favicon_path:     /assets/gitbook/images/favicon.ico
@@ -41,10 +41,10 @@ collections:
     output: true
     permalink: /:collection/:path/
 
-page_width: 800px
+page_width: 900px
 
 destination:      ./_site
-incremental:      false
+incremental:      true
 regenerate:       true
 
 plugins:
