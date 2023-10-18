@@ -74,7 +74,7 @@
             });
           });
         });
-        // Ordina le frequenze dal maggiore al minore
+        // Sort frequencies in descending order
         for (const column in frequencies) {
           frequencies[column] = Object.fromEntries(
             Object.entries(frequencies[column]).sort((a, b) => b[1] - a[1])
@@ -104,7 +104,7 @@
         });
 
         // Calculate occorrences
-        const totalObservations = data.length - 1; // Escludi l'intestazione
+        const totalObservations = data.length - 1; // Exclude header
         for (const key in jointDistribution) {
           jointDistribution[key] /= totalObservations;
         }
@@ -143,7 +143,7 @@
             for (const value in data[column]) {
               const li = document.createElement("li");
               const freq=calculateFrequencies(data[column],data[column][value])
-              li.innerHTML = `<span style="color: gray">${value}</style> - <span style="color: green">Frequenza Assoluta: ${freq["abs"]}</style> <span style="color: blue">Relative Frequency: ${freq["rel"]}</span> <span style="color: purple">Percentual Frequency: ${freq["per"]} %</span>`;
+              li.innerHTML = `<span style="color: gray">${value}</style> - <span style="color: green">Absolute Frequency: ${freq["abs"]}</style> <span style="color: blue">Relative Frequency: ${freq["rel"]}</span> <span style="color: purple">Percentual Frequency: ${freq["per"]} %</span>`;
               ul.appendChild(li);
             }
             resultsDiv.appendChild(header);

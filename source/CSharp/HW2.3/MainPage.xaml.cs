@@ -85,21 +85,20 @@ namespace HW2._3
                 }
             }
         }
-
-        private int[] GenerateRandomData(int k, int n)
-        {
-            int[] histogram = new int[k]; // Crea un array di interi di lunghezza k per rappresentare gli intervalli (range) dell'istogramma.
-            Random rand = new Random(); // Crea un oggetto Random per generare numeri casuali.
+        
+        private int[] GenerateRandomData(int k, int n){
+            int[] histogram = new int[k]; // Creates an array of integers of length k to represent the intervals (ranges) of the histogram.
+            Random rand = new Random(); // Creates a Random object to generate random numbers.
 
             for (int i = 0; i < n; i++)
             {
-                double randomValue = rand.NextDouble(); // Genera un numero casuale tra 0 e 1.
-                int range = (int)(randomValue * k); // Calcola il range in cui il numero casuale rientra.
+                double randomValue = rand.NextDouble(); // Generates a random number between 0 and 1.
+                int range = (int)(randomValue * k); // It calculates the range in which the random number falls.
                 if (range == k)
-                    range--; // Se il numero casuale è esattamente 1, lo assegna all'ultimo range (k-1).
-                histogram[range]++; // Incrementa il conteggio nel range corrispondente.
+                    range--; // If the random number is exactly 1, it assigns it to the last range (k-1).
+                histogram[range]++; // Increases the count in the corresponding range.
             }
-            return histogram; // Restituisce l'array con i conteggi nei range.
+            return histogram; // Returns the array with the counts in the ranges.
         }
 
 
