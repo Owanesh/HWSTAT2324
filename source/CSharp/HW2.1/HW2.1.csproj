@@ -2,18 +2,21 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net7.0-android;net7.0-ios;net7.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
+		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
+		<!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
 		<OutputType>Exe</OutputType>
-		<RootNamespace>HW1</RootNamespace>
+		<RootNamespace>HW2._1</RootNamespace>
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 
 		<!-- Display name -->
-		<ApplicationTitle>HW1</ApplicationTitle>
+		<ApplicationTitle>HW2.1</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>hw2324.statistics.hw1</ApplicationId>
-		<ApplicationIdGuid>09045007-59bd-49d6-a33d-1b9caa754b9a</ApplicationIdGuid>
+		<ApplicationId>com.companyname.hw2._1</ApplicationId>
+		<ApplicationIdGuid>ed8088d2-24ed-4cbb-a9f7-ceccf5a0450b</ApplicationIdGuid>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -25,29 +28,27 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
-		<TargetFramework>net7.0-maccatalyst</TargetFramework>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
 	  <CreatePackage>false</CreatePackage>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-	  <WarningLevel>4</WarningLevel>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios|AnyCPU'">
+	  <CreatePackage>false</CreatePackage>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Platforms\Android\MainApplication.cs" />
-	  <Compile Remove="Platforms\Android\MainActivity.cs" />
-	  <Compile Remove="Platforms\Tizen\Main.cs" />
-	  <Compile Remove="Platforms\iOS\AppDelegate.cs" />
-	  <Compile Remove="Platforms\iOS\Program.cs" />
+	  <None Remove="Resources\Raw\professional161023.tsv" />
 	</ItemGroup>
 	<ItemGroup>
-	  <None Remove="Platforms\Android\AndroidManifest.xml" />
-	  <None Remove="Platforms\Tizen\tizen-manifest.xml" />
-	  <None Remove="Platforms\iOS\Info.plist" />
+	  <BundleResource Include="Resources\Raw\professional161023.tsv" />
+	</ItemGroup>
+	<ItemGroup>
+	  <MauiAsset Update="Resources\Raw\professional161023.tsv">
+	    <LogicalName>professional161023.tsv</LogicalName>
+	  </MauiAsset>
 	</ItemGroup>
 </Project>
