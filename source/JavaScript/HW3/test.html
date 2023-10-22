@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Example</title>
+    <script src="utils/shapes.js"></script>
+
+</head>
+
+<body>
+    <canvas style="border: 1px solid black;" id="myCanvas" width="1200" height="600"></canvas>
+    <span id="rectcounter">000</span>
+    <script>
+
+        class DynamicRectangleManager {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.context = this.canvas.getContext("2d");
+                this.rectangles = [];
+                this.refreshInterval = 1000 / 60; // 60 FPS
+                this.refreshIntervalId = setInterval(this.draw.bind(this), this.refreshInterval);
+
+            }
+
+            addRectangle(rect) {
+                this.rectangles.push(rect);
+                this.draw();
+            }
+
+            draw() {
+                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.rectangles.forEach((rect) => {
+                    rect.draw();
+                });
+            drawCircle(graph1.context,graph1.rect.x + 30, graph1.rect.y + 30, 20);
+            drawCircle(graph2.context,graph2.rect.x + 30, graph2.rect.y + 30, 20);
+
+            }
+        }
+
+
+
+        const app = new DynamicRectangleManager("myCanvas");
+        var graph1 = new Rectangle(app.canvas, { x: 50, y: 50, width: 400, height: 280 }, "green")
+        var graph2 = new Rectangle(app.canvas, { x: 550, y:50, width: 400, height: 280 }, "pink")
+        app.addRectangle(graph1);
+        app.addRectangle(graph2);
+        
+        function drawCircle(context,x, y, radius) {
+            const ctx = context;  
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = "blue";
+            ctx.fill();
+            ctx.closePath();
+        }
+    </script>
+</body>
+
+</html>
