@@ -1,36 +1,54 @@
 /**
- * Manages dynamic rectangles on a canvas with continuous refresh.
+ * Manages dynamic objects on a canvas with continuous refresh.
  */
-class DynamicRectangleManager {
+class DynamicObjManager {
     /**
-     * Creates a new DynamicRectangleManager instance.
+     * Creates a new DynamicObjManager instance.
      * @param {string} canvasId - The ID of the canvas element.
      */
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.context = this.canvas.getContext("2d");
-        this.rectangles = [];
-        this.refreshInterval = 1000 / 60; // 60 FPS
+        this.objects = [];
+        this.refreshInterval = 1000 / 24; // 60 FPS
         // Set an interval for constant canvas refresh
+        this.canvas.addEventListener("mousedown", this.mouseDown.bind(this));
+        this.canvas.addEventListener("mouseup", this.mouseUp.bind(this));
+        this.refreshIntervalId = -1
+    }
+    mouseDown(event) {
         this.refreshIntervalId = setInterval(this.draw.bind(this), this.refreshInterval);
+
+    }
+ 
+    mouseUp(event){
+        clearInterval(this.refreshIntervalId)
+        this.draw()
     }
 
     /**
-     * Adds a rectangle to the manager and triggers a canvas update.
+     * Adds an object to the manager and triggers a canvas update.
      * @param {Rectangle} rect - The rectangle to add.
      */
-    addRectangle(rect) {
-        this.rectangles.push(rect);
+    addObject(rect) {
+        this.objects.push(rect);
         this.draw();
     }
-
     /**
-     * Clears the canvas and redraws all rectangles.
+     * Adds batch objects to the manager and triggers a canvas update.
+     * @param {Rectangle[]} rectList - The list of objects to add.
+     */
+    addObjects(rectList) {
+        rectList.forEach((rect)=>{this.objects.push(rect)})
+        this.drawInside();
+    }
+    /**
+     * Clears the canvas and redraws all objects.
      */
     draw() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.rectangles.forEach((rect) => {
-            rect.draw();
+        this.objects.forEach((rect) => {
+            rect.drawInside()
         });
     }
 }

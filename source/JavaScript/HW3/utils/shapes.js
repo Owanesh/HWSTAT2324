@@ -8,7 +8,7 @@ class Rectangle {
      * @param {Object} rectSize - The initial size and position of the rectangle (e.g., { x: 10, y: 10, width: 100, height: 80 }).
      * @param {string} color - The fill color of the rectangle.
      */
-    constructor(canvasId, rectSize, color) {
+    constructor(canvasId, rectSize, fillColor = "rgba(255, 0, 0, 0.5", borderColor = "black", borderWidth = 2) {
         this.canvas = canvasId;
         this.context = this.canvas.getContext("2d");
         this.isResizing = false;
@@ -18,7 +18,9 @@ class Rectangle {
         this.dragOffsetY = 0;
         this.resizeHandleSize = 8; // Dimensione del quadratino nero per il ridimensionamento
         this.rect = rectSize
-        this.color = color
+        this.fillColor = fillColor;
+        this.borderColor = borderColor;
+        this.borderWidth = borderWidth;
         this.canvas.addEventListener("mousedown", this.mouseDown.bind(this));
         this.canvas.addEventListener("mousemove", this.mouseMove.bind(this));
         this.canvas.addEventListener("mouseup", this.mouseUp.bind(this));
@@ -31,11 +33,14 @@ class Rectangle {
         return { x: this.rect.x, y: this.rect.y, width: this.rect.width, height: this.rect.height }
     }
     /**
- * Draws the rectangle and its resizing handle on the canvas.
- */
+* Draws the rectangle and its resizing handle on the canvas.
+*/
     draw() {
+
         this.context.clearRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height); // Cancella l'intero canvas
-        this.context.fillStyle = this.color;
+        this.context.strokeStyle = this.borderColor; // Colore del bordo
+        this.context.lineWidth = this.borderWidth; // Spessore del bordo
+        this.context.fillStyle = this.fillColor;
         if (this.isFlipped) {
             this.context.fillRect(
                 this.canvas.width - this.rect.x - this.rect.width,
@@ -46,13 +51,19 @@ class Rectangle {
         } else {
             this.context.fillRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height);
         }
-        this.drawResizeHandle();
+        this.spawnResizeAnchorPoint();
+    }
+    clear() {
+        this.context.clearRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height);
     }
 
+    drawInside() {
+        this.draw()
+    }
     /**
  * Draws the resizing handle of the rectangle.
  */
-    drawResizeHandle() {
+    spawnResizeAnchorPoint() {
         const x = this.rect.x + this.rect.width - this.resizeHandleSize;
         const y = this.rect.y + this.rect.height - this.resizeHandleSize;
         this.context.fillStyle = "black";
@@ -63,6 +74,7 @@ class Rectangle {
    * @param {MouseEvent} event - The mouse event object.
    */
     mouseDown(event) {
+
         const mouseX = event.clientX - this.canvas.getBoundingClientRect().left;
         const mouseY = event.clientY - this.canvas.getBoundingClientRect().top;
 
@@ -110,6 +122,7 @@ class Rectangle {
    * Handles mouse up event and resets resizing and dragging flags.
    */
     mouseUp() {
+        clearTimeout(this.refreshIntervalId)
         this.isResizing = false;
         this.isDragging = false;
     }
@@ -120,4 +133,5 @@ class Rectangle {
         this.isFlipped = !this.isFlipped;
         this.draw();
     }
+
 }
