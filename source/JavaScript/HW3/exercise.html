@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>🧪 [LAB] Homework 3</title>
+    <script src="utils/objectManager.js"></script>
+    <script src="utils/shapes.js"></script>
+    <script src="animated.js"></script>
+    <script src="attackMonitor.js"></script>
+
+
+</head>
+
+<body>
+    <h1>🧪 [LAB] Homework 3</h1>
+    <canvas style="border: 1px solid black;" id="myCanvas" width="1300" height="650"></canvas>
+    <br>
+    Probability that attack succeed <input id="probInput" type="number" min="0" max="100" value="0">
+    Number of systems <input type="number" id="sysInput" min="10" /><br>
+    <script>
+        const app = new DynamicObjManager("myCanvas");
+        const initialRectSize = { width: 500, height: 300 };
+        const graphSettings = { probability: 0.5, nSystems: 1000, nAttacks: 20};
+        const graphUISettings = { label:"ScorePoint Graph",fill: "rgba(200, 200, 200, 0.5)", border: "black", borderWidth: 2 }
+
+        const attackManager = new AttackMonitor(graphSettings)
+        const attackMatrix = attackManager.getMatrix()
+
+        var graph1 = new AnimatedGraph(app.canvas, {...initialRectSize,x: 50, y: 20},{...graphUISettings,label:"ScorePoint Graph"}, {...graphSettings,mode: "SCR" })
+        graph1.setAttackMatrix(attackMatrix)
+        var graph2 = new AnimatedGraph(app.canvas, {...initialRectSize,x: 600, y: 20}, {...graphUISettings,label:"Absolute Frequency Graph"}, {...graphSettings,mode: "ABS" })
+        graph2.setAttackMatrix(attackMatrix)
+        var graph3 = new AnimatedGraph(app.canvas, {...initialRectSize,x: 50, y: 350}, {...graphUISettings,label:"Relative Frequency Graph"}, {...graphSettings,mode: "REL" })
+        graph3.setAttackMatrix(attackMatrix)
+        var graph4 = new AnimatedGraph(app.canvas, {...initialRectSize,x: 600, y: 350}, {...graphUISettings,label:"Normalized Frequency Graph"}, {...graphSettings,mode: "NOR" })
+        graph4.setAttackMatrix(attackMatrix)
+        app.addObjects([graph1, graph2,graph3,graph4]);
+    </script>
+</body>
+
+</html>

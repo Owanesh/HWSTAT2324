@@ -20,35 +20,35 @@ class DynamicObjManager {
         this.refreshIntervalId = setInterval(this.draw.bind(this), this.refreshInterval);
 
     }
- 
-    mouseUp(event){
+
+    mouseUp(event) {
         clearInterval(this.refreshIntervalId)
         this.draw()
     }
 
     /**
      * Adds an object to the manager and triggers a canvas update.
-     * @param {Rectangle} rect - The rectangle to add.
+     * @param {Rectangle} obj - The object to add.
      */
-    addObject(rect) {
-        this.objects.push(rect);
+    addObject(obj) {
+        this.objects.push(obj);
         this.draw();
     }
     /**
      * Adds batch objects to the manager and triggers a canvas update.
-     * @param {Rectangle[]} rectList - The list of objects to add.
+     * @param {Rectangle[]} objList - The list of objects to add.
      */
-    addObjects(rectList) {
-        rectList.forEach((rect)=>{this.objects.push(rect)})
-        this.drawInside();
+    addObjects(objList) {
+        objList.forEach((obj) => { this.objects.push(obj) })
+        this.draw();
     }
     /**
      * Clears the canvas and redraws all objects.
      */
     draw() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.objects.forEach((rect) => {
-            rect.drawInside()
+        this.objects.forEach((obj) => {
+            obj.drawInside()
         });
     }
 }
