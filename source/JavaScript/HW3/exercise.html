@@ -15,12 +15,19 @@
     <h1>🧪 [LAB] Homework 3</h1>
     <canvas style="border: 1px solid black;" id="myCanvas" width="1300" height="650"></canvas>
     <br>
-    Probability that attack succeed <input id="probInput" type="number" min="0" max="100" value="0">
-    Number of systems <input type="number" id="sysInput" min="10" /><br>
+    Probability that attack succeed <input id="probInput" placeholder="From 0 to 0.5" step=".01" type="number" min="0" max="1" ">
+    Number of systems <input type="number"  placeholder="We suggest 100" id="sysInput" min="10" /><br>
+    Number of attacks to simulate <input type="number"  placeholder="We suggest 30" id="nAttacks" min="10" /><br>
     <script>
         const app = new DynamicObjManager("myCanvas");
         const initialRectSize = { width: 500, height: 300 };
-        const graphSettings = { probability: 0.5, nSystems: 1000, nAttacks: 20};
+        const probInput = parseFloat(document.getElementById("probInput").value);
+            const sysInput = parseInt(document.getElementById("sysInput").value);
+            const nAttacks = parseInt(document.getElementById("nAttacks").value);
+
+            // Aggiorna gli oggetti grafici con i nuovi valori
+            const graphSettings = { probability: probInput, nSystems: sysInput, nAttacks: nAttacks };
+           
         const graphUISettings = { label:"ScorePoint Graph",fill: "rgba(200, 200, 200, 0.5)", border: "black", borderWidth: 2 }
 
         const attackManager = new AttackMonitor(graphSettings)
