@@ -12,8 +12,6 @@ class AnimatedGraph extends Rectangle {
         this.nAtk = graphSettings['nAttacks'];
         this.mode = graphSettings['mode'];
         this.nSys = graphSettings['nSystems'];
-        this.generateGrid(this.nAtk)
-
     }
     /**
         * Sets the attack matrix for the graph.
@@ -81,6 +79,7 @@ class AnimatedGraph extends Rectangle {
         }
     }
 
+
     /**
      * Analyzes a system based on an attack vector and draws the corresponding graph lines.
      *
@@ -89,25 +88,87 @@ class AnimatedGraph extends Rectangle {
     analyzeSystem(attackVector) {
         let x = 0;
         let y = 0;
-        this.context.strokeStyle = attackVector[0]
+        this.context.strokeStyle = attackVector[0]['color']
         let numberOfAttacks = attackVector.length - 1
         let baseYaxis = this.rect.y + this.rect.height / 2
         let baseXaxis = this.rect.x
         for (let i = attackVector.length; i > 0; i--) {
             this.context.beginPath();
+            if (this.mode === "NOR")
+            this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height / 11 / numberOfAttacks) * y);
+
+            else
             this.context.moveTo(baseXaxis + x, baseYaxis + (this.rect.height / 5 / numberOfAttacks) * y);
             if (!attackVector[i]) {
                 if (this.mode === "SCR") y++
             } else {
-                if (this.mode === "REL") y -= (attackVector.length - i) / (numberOfAttacks);
-                else if (this.mode === "NOR") { y -= (attackVector.length - i) / Math.sqrt(numberOfAttacks); }
+                if (this.mode === "REL") y -= (attackVector.length - i) / ((attackVector.length - i));
+                else if (this.mode === "NOR") { y -= (attackVector.length - i) / Math.sqrt((attackVector.length - i)); }
                 else y--
             }
             x = (attackVector.length - i) * (this.rect.width / (numberOfAttacks));
+            if (this.mode === "NOR")
+            this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height / 11 / numberOfAttacks) * y);
+
+            else
             this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height / 5 / numberOfAttacks) * y);
             this.context.stroke();
         }
+        return y
     }
+    /**
+ * Crea un istogramma basato sui punteggi dei sistemi in this.attackMatrix[i][0]['final'].
+ * Le barre sono gialle con bordo nero e si sviluppano in orizzontale.
+ * L'altezza di ogni barra è proporzionale al numero di sistemi all'interno dell'intervallo.
+ */
+    createHistogram() {
+        // Estrai i punteggi finali dei sistemi
+        this.context.globalAlpha = 0.3; // Imposta il valore desiderato tra 0 e 1
+
+        const scores = this.attackMatrix.map(system => system[0]['final']);
+        
+        // Trova il minimo e il massimo punteggio
+        const minScore = Math.min(...scores);
+        const maxScore = Math.max(...scores);
+    
+        // Definisci il numero di intervalli desiderati (barre)
+        const numIntervals = Math.max(Math.ceil(this.attackMatrix.length / 10), 5);  
+        // Calcola la larghezza di ogni intervallo
+        const intervalWidth = (maxScore - minScore) / numIntervals;
+    
+        // Crea un array per tenere traccia del conteggio di punti in ciascun intervallo
+        const intervalCounts = new Array(numIntervals).fill(0);
+    
+        // Conta quanti sistemi rientrano in ciascun intervallo
+        scores.forEach(score => {
+            const intervalIndex = Math.floor((score - minScore) / intervalWidth);
+            if (intervalIndex >= numIntervals) {
+                intervalCounts[numIntervals - 1]++;
+            } else {
+                intervalCounts[intervalIndex]++;
+            }
+        });
+    
+        // Trova il massimo conteggio per normalizzare le altezze delle barre
+        const maxCount = Math.max(...intervalCounts);
+    
+        // Calcola la larghezza di ogni barra
+        const barWidth = this.rect.width / numIntervals;
+        // Disegna le barre dell'istogramma
+        for (let i = 0; i < numIntervals; i++) {
+            const x = this.rect.x + i * barWidth;
+            const barHeight = (intervalCounts[i] / maxCount) * this.rect.height;
+            const y = this.rect.y + this.rect.height - barHeight;
+    
+            // Disegna la barra
+            this.context.fillStyle = "yellow";
+            this.context.strokeStyle = "black";
+            this.context.fillRect(x, y, barWidth, barHeight);
+        }
+        this.context.globalAlpha =1
+    }
+    
+
     /**
     * Draws the entire graph, including the grid and systems.
     */
@@ -115,8 +176,9 @@ class AnimatedGraph extends Rectangle {
         this.draw();
         this.generateGrid(this.nAtk)
         for (let i = 0; i < this.attackMatrix.length; i++) {
-            this.analyzeSystem(this.attackMatrix[i]);
+            this.attackMatrix[i][0]['final'] = this.analyzeSystem(this.attackMatrix[i]);
         }
+        this.createHistogram()
     }
     /**
      * Flips the graph (toggles between flipped and unflipped states) and redraws it.

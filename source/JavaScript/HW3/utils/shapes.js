@@ -11,7 +11,6 @@ class Rectangle {
     constructor(canvasId, rectSize, uiSettings) {
         this.canvas = canvasId;
         this.context = this.canvas.getContext("2d");
-        this.context.globalAlpha = 0.5; // Imposta il valore desiderato tra 0 e 1
 
         this.isResizing = false;
         this.isFlipped = false;
