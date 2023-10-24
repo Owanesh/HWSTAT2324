@@ -42,11 +42,20 @@ class DynamicObjManager {
         objList.forEach((obj) => { this.objects.push(obj) })
         this.draw();
     }
+    flushObjects() {
+        this.objects = []
+    }
+    /**
+     * Clears the canvas only
+     */
+    clear() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
     /**
      * Clears the canvas and redraws all objects.
      */
     draw() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.clear()
         this.objects.forEach((obj) => {
             obj.drawInside()
         });
