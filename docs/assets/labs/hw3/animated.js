@@ -116,7 +116,7 @@ class AnimatedGraph extends Rectangle {
      */
     analyzeSystem(attackVector) {
         var x = 0;
-        var score = 0;
+        var score = 1;
         this.context.strokeStyle = attackVector[0]['color']
         var numberOfAttacks = attackVector.length - 1
         var baseYaxis = this.rect.y + this.rect.height / 2
@@ -126,21 +126,21 @@ class AnimatedGraph extends Rectangle {
             atkC++
             this.context.beginPath();
             if (this.mode === "NOR")
-                this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height / 11 / numberOfAttacks) * -score);
+            this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height/(this.nSys/10) / numberOfAttacks) * (-score));
             else
-                this.context.moveTo(baseXaxis + x, baseYaxis + (this.rect.height / 5 / numberOfAttacks) * -score);
+                this.context.moveTo(baseXaxis + x, baseYaxis + (this.rect.height/2  / numberOfAttacks) * -score);
             if (!attackVector[i]) {
                 if (this.mode === "SCR") score--
             } else {
-                if (this.mode === "REL") score += ((atkC)) / ((attackVector.length - i));
-                else if (this.mode === "NOR") { score += (atkC) / Math.sqrt(this.realAttackCounter(attackVector, attackVector.length - i)); }
+                if (this.mode === "REL") score += (this.realAttackCounter(attackVector,atkC)) / atkC;
+                else if (this.mode === "NOR") { score += this.realAttackCounter(attackVector,atkC) / Math.sqrt(atkC) }
                 else score++
             }
             x = (attackVector.length - i) * (this.rect.width / (numberOfAttacks));
             if (this.mode === "NOR")
-                this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height / 11 / numberOfAttacks) * (-score));
+            this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height/(this.nSys/10) / numberOfAttacks) * (-score));
             else
-                this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height / 5 / numberOfAttacks) * (-score));
+                this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height/2 / numberOfAttacks) * (-score));
             this.context.stroke();
             if (Math.floor(numberOfAttacks / 2) == i) { attackVector[0]['middle'] = (score) }
         }
