@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Joint Distribution Calculator</title>
+  <script src="./lib.js"></script>
+</head>
+
+<body>
+  <h1>Joint Distribution Calculator</h1>
+  <input type="file" id="fileInput" accept=".tsv" />
+  <div id="variables"></div>
+  <button id="calculateButton">Calculate Joint Distribution</button>
+  <pre id="output"></pre>
+
+  <script>
+    function uniformComputerEngineeringField(str) {
+      str = str.replace(/\bCOMPUTER SCIENCE AND ENGINEERING\b/g, "INFORMATION TECHNOLOGY ENGINEERING(*)")
+      str = str.replace(/\bCOMPUTER ENGINEERING\b/g, "INFORMATION TECHNOLOGY ENGINEERING(*)")
+      str = str.replace(/\bCOMPUTER AND SYSTEM ENGINEERING\b/g, "INFORMATION TECHNOLOGY ENGINEERING(*)")
+      str = str.replace(/\bENGINEERING IN COMPUTER SCIENCE\b/g, "INFORMATION TECHNOLOGY ENGINEERING(*)")
+      str = str.replace(/\bSOFTWARE AND INFORMATION ENGINEERING\b/g, "INFORMATION TECHNOLOGY ENGINEERING(*)")
+      str = str.replace(/\bCOMPUTER SCIENCE ENGINEERING\b/g, "INFORMATION TECHNOLOGY ENGINEERING(*)")
+      return str
+    }
+
+    function cleanPossibleTypos(str) {
+      str = str.replace(/\bSCIWENCE\b/g, "SCIENCE")
+      str = str.replace(/\bCOMPURER\b/g, "COMPUTER")
+      str = str.replace(/\bCONPUTER\b/g, "COMPUTER")
+      str = str.replace(/\bJAVASCRITP\b/g, "JAVASCRIPT")
+      str = str.replace(/\bTYPOSCRIPT\b/g, "TYPESCRIPT")
+      str = str.replace(/\bPYHON\b/g, "PYTHON")
+      str = str.replace(/\bJAVESCRIPT\b/g, "JAVASCRIPT")
+      str = str.replace(/\bPOSTREGSQL\b/g, "POSTGRESQL")
+      str = str.replace(/\bCYBER SECURITY\b/g, "CYBERSECURITY")
+      str = str.replace(/\bHOURDS\b/g, "HOURS")
+      str = str.replace(/\bH PER DAY\b/g, "HOURS")
+      str = str.replace(/\bHRS\/DAY\b/g, "HOURS")
+      str = str.replace("ASSEMBLY", "ASSEMBLY (*)")
+      str = str.replace("X86 ASSEMBLY", "ASSEMBLY (*)")
+      str = str.replace(/\bC°\b/g, "C#")
+      return uniformComputerEngineeringField(str);
+    }
+
+
+    function createCheckbox(variable) {
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = variable;
+      checkbox.checked = false;
+      return checkbox;
+    }
+
+    function updateSelectedVariables() {
+      const selectedVariables = [];
+      const checkboxes = document.querySelectorAll('#variables input[type="checkbox"]:checked');
+      checkboxes.forEach(checkbox => {
+        const varIndex = Object.keys(variables).indexOf(checkbox.value);
+        if (varIndex) {
+          selectedVariables.push(variables[[Object.keys(variables)[varIndex]]]);
+        }
+      });
+      return selectedVariables;
+    }
+
+    const variables = {};
+    function calculateJointDistribution() {
+      const selectedVariables = updateSelectedVariables();
+      console.table(selectedVariables)
+      const joiner = new Joiner(selectedVariables);
+      const jointDistribution = joiner.performJointDistribution(selectedVariables);
+      console.log(jointDistribution);
+      document.getElementById('output').textContent = JSON.stringify(jointDistribution, null, 2);
+    }
+
+    document.getElementById('fileInput').addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          const content = e.target.result;
+          const lines = content.split('\n');
+          const headers = lines[0].split('\t');
+
+
+          for (let i = 1; i < headers.length; i++) {
+            variables[cleanPossibleTypos(headers[i]).toUpperCase()] = new Variable(headers[i]);
+          }
+
+          for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split('\t');
+            for (let j = 1; j < values.length; j++) {
+              const header = cleanPossibleTypos(headers[j]).toUpperCase();
+              if (values[j].includes(',')) {
+                values[j].split(',').forEach(value => {
+                  variables[header].add(value.toUpperCase().trim());
+                });
+              } else
+                variables[header].add(values[j].toUpperCase().trim());
+            }
+          }
+          console.table(variables)
+          const variablesContainer = document.getElementById('variables');
+          variablesContainer.innerHTML = '';
+
+          Object.keys(variables).forEach(variable => {
+            const checkbox = createCheckbox(variable);
+            const label = document.createElement('label');
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(variable));
+            variablesContainer.appendChild(label);
+          });
+        };
+
+        reader.readAsText(file);
+      }
+    });
+
+    document.getElementById('calculateButton').addEventListener('click', calculateJointDistribution);
+  </script>
+</body>
+
+</html>
