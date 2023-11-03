@@ -4,6 +4,7 @@
 <head>
   <title>Joint Distribution Calculator</title>
   <script src="./lib.js"></script>
+  <script src="../HW2/utils.js"></script>
 </head>
 
 <body>
@@ -11,68 +12,41 @@
   <input type="file" id="fileInput" accept=".tsv" />
   <div id="variables"></div>
   <button id="calculateButton">Calculate Joint Distribution</button>
+  <div id="intervalInput" style="display: none;">
+    <h2>Enter Intervals for Selected Variables:</h2>
+    <div id="intervalFields"></div>
+    <button id="calculateIntervalButton">Calculate with Intervals</button>
+  </div>
   <pre id="output"></pre>
+  <pre id="JSS"></pre>
 
   <script>
-    function uniformComputerEngineeringField(str) {
-      str = str.replace(/\bCOMPUTER SCIENCE AND ENGINEERING\b/g, "INFORMATION TECHNOLOGY ENGINEERING(*)")
-      str = str.replace(/\bCOMPUTER ENGINEERING\b/g, "INFORMATION TECHNOLOGY ENGINEERING(*)")
-      str = str.replace(/\bCOMPUTER AND SYSTEM ENGINEERING\b/g, "INFORMATION TECHNOLOGY ENGINEERING(*)")
-      str = str.replace(/\bENGINEERING IN COMPUTER SCIENCE\b/g, "INFORMATION TECHNOLOGY ENGINEERING(*)")
-      str = str.replace(/\bSOFTWARE AND INFORMATION ENGINEERING\b/g, "INFORMATION TECHNOLOGY ENGINEERING(*)")
-      str = str.replace(/\bCOMPUTER SCIENCE ENGINEERING\b/g, "INFORMATION TECHNOLOGY ENGINEERING(*)")
-      return str
-    }
-
-    function cleanPossibleTypos(str) {
-      str = str.replace(/\bSCIWENCE\b/g, "SCIENCE")
-      str = str.replace(/\bCOMPURER\b/g, "COMPUTER")
-      str = str.replace(/\bCONPUTER\b/g, "COMPUTER")
-      str = str.replace(/\bJAVASCRITP\b/g, "JAVASCRIPT")
-      str = str.replace(/\bTYPOSCRIPT\b/g, "TYPESCRIPT")
-      str = str.replace(/\bPYHON\b/g, "PYTHON")
-      str = str.replace(/\bJAVESCRIPT\b/g, "JAVASCRIPT")
-      str = str.replace(/\bPOSTREGSQL\b/g, "POSTGRESQL")
-      str = str.replace(/\bCYBER SECURITY\b/g, "CYBERSECURITY")
-      str = str.replace(/\bHOURDS\b/g, "HOURS")
-      str = str.replace(/\bH PER DAY\b/g, "HOURS")
-      str = str.replace(/\bHRS\/DAY\b/g, "HOURS")
-      str = str.replace("ASSEMBLY", "ASSEMBLY (*)")
-      str = str.replace("X86 ASSEMBLY", "ASSEMBLY (*)")
-      str = str.replace(/\bC°\b/g, "C#")
-      return uniformComputerEngineeringField(str);
-    }
-
-
-    function createCheckbox(variable) {
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.value = variable;
-      checkbox.checked = false;
-      return checkbox;
-    }
-
-    function updateSelectedVariables() {
-      const selectedVariables = [];
-      const checkboxes = document.querySelectorAll('#variables input[type="checkbox"]:checked');
-      checkboxes.forEach(checkbox => {
-        const varIndex = Object.keys(variables).indexOf(checkbox.value);
-        if (varIndex) {
-          selectedVariables.push(variables[[Object.keys(variables)[varIndex]]]);
-        }
-      });
-      return selectedVariables;
-    }
-
     const variables = {};
-    function calculateJointDistribution() {
-      const selectedVariables = updateSelectedVariables();
-      console.table(selectedVariables)
-      const joiner = new Joiner(selectedVariables);
-      const jointDistribution = joiner.performJointDistribution(selectedVariables);
-      console.log(jointDistribution);
-      document.getElementById('output').textContent = JSON.stringify(jointDistribution, null, 2);
+
+    function cleanVariables(variable) {
+      const variableListSelect = document.getElementById('variableListSelect')
+      const selectedValuesFromHTMLElement = getValueFromAMultipleSelect(variableListSelect);
+      Object.keys(variables).forEach(elm => {
+        if (!selectedValuesFromHTMLElement.includes(elm))
+          delete variables[elm]
+      });
+      document.getElementById('variables').removeChild(variableListSelect);
+      return variables
     }
+
+
+    function jointCalculation(jsonSurvey, variables) {
+      const jointDistribution = {};
+      console.log(variables)
+      // Iterate through the keys in the JSON survey data
+      console.log("joint")
+      console.log(jointDistribution);
+    }
+
+
+
+    var content = '';
+    var selectedVariables = [];
 
     document.getElementById('fileInput').addEventListener('change', function (event) {
       const file = event.target.files[0];
@@ -80,10 +54,9 @@
         const reader = new FileReader();
 
         reader.onload = function (e) {
-          const content = e.target.result;
+          content = e.target.result;
           const lines = content.split('\n');
           const headers = lines[0].split('\t');
-
 
           for (let i = 1; i < headers.length; i++) {
             variables[cleanPossibleTypos(headers[i]).toUpperCase()] = new Variable(headers[i]);
@@ -105,20 +78,27 @@
           const variablesContainer = document.getElementById('variables');
           variablesContainer.innerHTML = '';
 
+          var selectList = document.createElement("select");
+          selectList.multiple = true;
+          selectList.id = "variableListSelect";
+
+          //Create and append the options
           Object.keys(variables).forEach(variable => {
-            const checkbox = createCheckbox(variable);
-            const label = document.createElement('label');
-            label.appendChild(checkbox);
-            label.appendChild(document.createTextNode(variable));
-            variablesContainer.appendChild(label);
-          });
+            var option = document.createElement("option");
+            option.value = variable;
+            option.text = variable;
+            selectList.appendChild(option);
+          })
+          variablesContainer.appendChild(selectList);
         };
 
         reader.readAsText(file);
       }
     });
 
-    document.getElementById('calculateButton').addEventListener('click', calculateJointDistribution);
+    document.getElementById('calculateButton').addEventListener('click', function () {
+      jointCalculation(surveyToJSON(content), cleanVariables(variables));
+    });
   </script>
 </body>
 
