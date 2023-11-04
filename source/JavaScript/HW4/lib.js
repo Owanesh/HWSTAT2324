@@ -1,8 +1,7 @@
 class Variable {
   constructor(column) {
     this._column = cleanPossibleTypos(column).toUpperCase(); // Apply typo cleaning and make uppercase
-    this._valueSet = new Set();
-    this._valueCounter = new Map();
+    this._valueSet = new Map();
     this._isQuantitative = true;
     this._isQualitative = true;
     this._intervals = 0
@@ -19,9 +18,8 @@ class Variable {
       this._isQuantitative = true;
     }
 
-    const existingCount = this._valueCounter.get(cleanedValue) || 0;
-    this._valueCounter.set(cleanedValue, existingCount + 1);
-    this._valueSet.add(cleanedValue);
+    const existingCount = this._valueSet.get(cleanedValue) || 0;
+    this._valueSet.set(cleanedValue, existingCount + 1);
   }
 
   toString() {
@@ -75,9 +73,7 @@ class Variable {
   get isQuantitative() {
     return this._isQuantitative;
   }
-  get valueCounter() {
-    return this._valueCounter;
-  }
+
 }
 
 class Joiner {

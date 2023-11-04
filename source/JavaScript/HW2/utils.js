@@ -23,6 +23,7 @@ function cleanPossibleTypos(str) {
     str = str.replace(/\bHRS\/DAY\b/g, "HOURS")
     str = str.replace("ASSEMBLY", "ASSEMBLY (*)")
     str = str.replace("X86 ASSEMBLY", "ASSEMBLY (*)")
+    str = str.replace("...", "")
     str = str.replace(/\bC°\b/g, "C#")
     return uniformComputerEngineeringField(str)
 }

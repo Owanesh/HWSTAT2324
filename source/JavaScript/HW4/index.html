@@ -5,55 +5,151 @@
   <title>Joint Distribution Calculator</title>
   <script src="./lib.js"></script>
   <script src="../HW2/utils.js"></script>
+  <style>
+    button {
+      background-color: #007bff;
+      color: #fff;
+      padding: 5px 10px;
+      border: 1px solid #007bff;
+      border-radius: 4px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 10px;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+
+    .green {
+      background-color: #5bc0de;
+      border: 1px solid #5bc0de;
+
+    }
+
+    .yellow {
+      background-color: #f0ad4e;
+      border: 1px solid #f0ad4e;
+    }
+  </style>
 </head>
 
 <body>
   <h1>Joint Distribution Calculator</h1>
   <input type="file" id="fileInput" accept=".tsv" />
   <div id="variables"></div>
-  <button id="calculateButton">Calculate Joint Distribution</button>
-  <div id="intervalInput" style="display: none;">
+  <button class="yellow" id="calculateButton">select invervals</button>
+  <div id="intervalInput">
     <h2>Enter Intervals for Selected Variables:</h2>
-    <div id="intervalFields"></div>
-    <button id="calculateIntervalButton">Calculate with Intervals</button>
+    <div id="variableInterval"></div>
+    <button class="green" id="submitButton">View intervals</button>
+    <pre id="shoeinverval"></pre>
   </div>
   <pre id="output"></pre>
   <pre id="JSS"></pre>
 
   <script>
-    const variables = {};
-
-    function cleanVariables(variable) {
-      const variableListSelect = document.getElementById('variableListSelect')
+    /**
+     * This function cleans the variables based on the selected values in a multiple select element.
+     *
+     * @param {object} variables - An object containing variables to be cleaned.
+     * @returns {object} - The cleaned variables object.
+     */
+    const cleanVariables = (variables) => {
+      const variableListSelect = document.getElementById('variableListSelect');
       const selectedValuesFromHTMLElement = getValueFromAMultipleSelect(variableListSelect);
-      Object.keys(variables).forEach(elm => {
-        if (!selectedValuesFromHTMLElement.includes(elm))
-          delete variables[elm]
+
+      // Remove variables that are not selected in the multiple select element.
+      Object.keys(variables).forEach((elm) => {
+        if (!selectedValuesFromHTMLElement.includes(elm)) {
+          delete variables[elm];
+        }
       });
+
+      // Remove the multiple select element from the document.
       document.getElementById('variables').removeChild(variableListSelect);
-      return variables
-    }
 
+      return variables;
+    };
 
-    function jointCalculation(jsonSurvey, variables) {
+    /**
+     * This function performs a joint calculation using JSON survey data and variables.
+     *
+     * @param {object} jsonSurvey - JSON survey data.
+     * @param {object} variables - An object containing variables.
+     */
+    const jointCalculation = (jsonSurvey, variables) => {
       const jointDistribution = {};
-      console.log(variables)
-      // Iterate through the keys in the JSON survey data
-      console.log("joint")
+      console.log(variables);
+
+      const inputMap = new Map();
+      const container = document.getElementById('variableInterval');
+      const submitButton = document.getElementById('submitButton');
+
+      // Iterate through variables and create input fields for quantitative variables using Lambda function.
+      Object.keys(variables).forEach((key) => {
+        if (variables[key].isQuantitative) {
+          const lbl = document.createElement('span');
+          lbl.innerHTML = key;
+
+          const input = document.createElement('input');
+          input.type = 'text';
+
+          container.appendChild(lbl);
+          container.appendChild(input);
+
+          const linebreak = document.createElement('br');
+          container.appendChild(linebreak);
+
+          input.addEventListener('input', (event) => {
+            inputMap.set(key, event.target.value);
+          });
+        }
+      });
+
+      // Handle the click event of the submit button using Lambda function.
+      submitButton.addEventListener('click', () => {
+        document.getElementById('intervalInput').removeChild(document.getElementById('variableInterval'));
+        document.getElementById('intervalInput').removeChild(document.getElementById('submitButton'));
+
+        console.log(inputMap);
+        let tabulatedString = '';
+
+        Object.keys(variables).forEach((key) => {
+          if (variables[key].isQuantitative) {
+            tabulatedString += key + '\t';
+            variables[key].intervals = parseInt(inputMap.get(key));
+            for (const set of variables[key].intervals) {
+              tabulatedString += '[';
+              for (const entry of set) {
+                tabulatedString += entry[0] + ' ';
+              }
+              tabulatedString += '] ';
+            }
+            tabulatedString += '\n';
+          }
+        });
+
+        const preTag = document.getElementById('output');
+        preTag.textContent = tabulatedString;
+      });
+
+      // todo: iterate each line of json, and at keyN of each object check the values to do a joint distribution
+      console.log('joint');
       console.log(jointDistribution);
-    }
+    };
 
+    // Initialize content and selectedVariables.
+    let content = '';
+    const selectedVariables = [];
 
-
-    var content = '';
-    var selectedVariables = [];
-
-    document.getElementById('fileInput').addEventListener('change', function (event) {
+    // Handle file input change event using Lambda function.
+    document.getElementById('fileInput').addEventListener('change', (event) => {
       const file = event.target.files[0];
+
       if (file) {
         const reader = new FileReader();
 
-        reader.onload = function (e) {
+        reader.onload = (e) => {
           content = e.target.result;
           const lines = content.split('\n');
           const headers = lines[0].split('\t');
@@ -67,28 +163,30 @@
             for (let j = 1; j < values.length; j++) {
               const header = cleanPossibleTypos(headers[j]).toUpperCase();
               if (values[j].includes(',')) {
-                values[j].split(',').forEach(value => {
+                values[j].split(',').forEach((value) => {
                   variables[header].add(value.toUpperCase().trim());
                 });
-              } else
+              } else {
                 variables[header].add(values[j].toUpperCase().trim());
+              }
             }
           }
-          console.table(variables)
+
           const variablesContainer = document.getElementById('variables');
           variablesContainer.innerHTML = '';
 
-          var selectList = document.createElement("select");
+          const selectList = document.createElement('select');
           selectList.multiple = true;
-          selectList.id = "variableListSelect";
+          selectList.id = 'variableListSelect';
 
-          //Create and append the options
-          Object.keys(variables).forEach(variable => {
-            var option = document.createElement("option");
+          // Create and append the options for the multiple select element.
+          Object.keys(variables).forEach((variable) => {
+            const option = document.createElement('option');
             option.value = variable;
             option.text = variable;
             selectList.appendChild(option);
-          })
+          });
+
           variablesContainer.appendChild(selectList);
         };
 
@@ -96,9 +194,13 @@
       }
     });
 
-    document.getElementById('calculateButton').addEventListener('click', function () {
+    // Handle calculate button click event using Lambda function.
+    document.getElementById('calculateButton').addEventListener('click', () => {
+      document.getElementById('fileInput').style.display = 'none';
       jointCalculation(surveyToJSON(content), cleanVariables(variables));
+      document.getElementById('calculateButton').style.display = 'none';
     });
+
   </script>
 </body>
 
