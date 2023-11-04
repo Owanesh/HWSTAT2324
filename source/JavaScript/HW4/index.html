@@ -45,7 +45,18 @@
     <pre id="shoeinverval"></pre>
   </div>
   <pre id="output"></pre>
-  <pre id="JSS"></pre>
+  <table id="myTable">
+    <thead>
+      <tr>
+        <th>Column Name</th>
+        <th>Values</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Table rows will be added here -->
+    </tbody>
+  </table>
+
 
   <script>
     /**
@@ -79,7 +90,6 @@
      */
     const jointCalculation = (jsonSurvey, variables) => {
       const jointDistribution = {};
-      console.log(variables);
 
       const inputMap = new Map();
       const container = document.getElementById('variableInterval');
@@ -110,8 +120,6 @@
       submitButton.addEventListener('click', () => {
         document.getElementById('intervalInput').removeChild(document.getElementById('variableInterval'));
         document.getElementById('intervalInput').removeChild(document.getElementById('submitButton'));
-
-        console.log(inputMap);
         let tabulatedString = '';
 
         Object.keys(variables).forEach((key) => {
@@ -128,19 +136,54 @@
             tabulatedString += '\n';
           }
         });
+        var cartesiano = cartesianProductWithColumn(Object.values(variables));
+        var jointDistribution = {}
+        for (const interval of cartesiano) { // foreach probability combination
+          const keyComboIndex = interval.map(obj => `${obj.columnName} ${Array.from(obj.interval).join(", ")}`).join(" + ");
+          var counter = 0
+          for (var index = 0; index < Object.keys(jsonSurvey)[0].length; index++) { // foreach row fo dictionary
 
+            for (const item of interval) { // foreach interval inside combination
+              jointDistribution[keyComboIndex] = 0
+              const columnName = item.columnName;
+              const intervalSet = item.interval;
+              const valueToCheck = jsonSurvey[columnName][index];
+              if (intervalSet.has(valueToCheck)) {
+                counter++
+              }
+            }
+          }
+          jointDistribution[keyComboIndex] = counter
+        }
+        const table = document.getElementById("myTable").getElementsByTagName('tbody')[0];
+
+        Object.keys(jointDistribution).forEach(key => {
+          const row = table.insertRow();
+          const cell1 = row.insertCell(0);
+          const cell2 = row.insertCell(1);
+          cell1.innerHTML = key
+          cell2.innerHTML = jointDistribution[key];
+          cell2.style.color = "red"
+        });
         const preTag = document.getElementById('output');
         preTag.textContent = tabulatedString;
       });
-
-      // todo: iterate each line of json, and at keyN of each object check the values to do a joint distribution
-      console.log('joint');
-      console.log(jointDistribution);
     };
 
     // Initialize content and selectedVariables.
     let content = '';
-    const selectedVariables = [];
+    const variables = [];
+    const cartesianProductWithColumn = (obj) =>
+      obj.reduce((a, b) =>
+        b.intervals.length === 0
+          ? a
+          : a.flatMap((x) =>
+            b.intervals.map((y) => [...x, { columnName: b._column, interval: y }])
+          ),
+        [[]]
+      );
+
+
 
     // Handle file input change event using Lambda function.
     document.getElementById('fileInput').addEventListener('change', (event) => {
