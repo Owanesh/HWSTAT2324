@@ -136,9 +136,9 @@
             tabulatedString += '\n';
           }
         });
-        var cartesiano = cartesianProductWithColumn(Object.values(variables));
+        var cartesianVariableJointed = cartesianProductWithColumn(Object.values(variables));
         var jointDistribution = {}
-        for (const interval of cartesiano) { // foreach probability combination
+        for (const interval of cartesianVariableJointed) { // foreach probability combination
           const keyComboIndex = interval.map(obj => `${obj.columnName} ${Array.from(obj.interval).join(", ")}`).join(" + ");
           var counter = 0
           for (var index = 0; index < Object.keys(jsonSurvey)[0].length; index++) { // foreach row fo dictionary

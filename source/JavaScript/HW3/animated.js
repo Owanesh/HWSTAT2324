@@ -142,7 +142,8 @@ class AnimatedGraph extends Rectangle {
             else
                 this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height/2 / numberOfAttacks) * (-score));
             this.context.stroke();
-            if (Math.floor(numberOfAttacks / 2) == i) { attackVector[0]['middle'] = (score) }
+            if (Math.floor(numberOfAttacks / 2) == atkC) { attackVector[0]['middle'] = (score) }
+            if (Math.floor(numberOfAttacks / 5) == atkC) { attackVector[0]['start'] = (score) }
         }
         attackVector[0]['final'] = (score)
     }
@@ -197,10 +198,12 @@ class AnimatedGraph extends Rectangle {
 
         const scoreFinals = this.attackMatrix.map(system => system[0]['final']);
         const scoreMiddle = this.attackMatrix.map(system => system[0]['middle']);
+        const scoreStart = this.attackMatrix.map(system => system[0]['start']);
 
         // Find the minimum and maximum score
         this.__printHistogram(scoreMiddle, "green", this.rect.width / 2, this.attackMatrix.length, this.rect);
         this.__printHistogram(scoreFinals, "yellow", this.rect.width, this.attackMatrix.length, this.rect);
+        this.__printHistogram(scoreFinals, "blue", this.rect.width / 5, this.attackMatrix.length, this.rect);
 
         this.context.globalAlpha = 1;
     }
