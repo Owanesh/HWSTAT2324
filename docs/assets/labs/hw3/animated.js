@@ -14,6 +14,8 @@ class AnimatedGraph extends Rectangle {
         this.nAtk = graphSettings['nAttacks'];
         this.mode = graphSettings['mode'];
         this.nSys = graphSettings['nSystems'];
+        this.deadTreshold = 0
+        this.brokeProcess = {}
     }
     /**
         * Sets the attack matrix for the graph.
@@ -22,6 +24,10 @@ class AnimatedGraph extends Rectangle {
         */
     setAttackMatrix(attackMatrix) {
         this.attackMatrix = attackMatrix
+    }
+    setDeadTreshold(trehsold) {
+        if (this.mode === "GRP")
+            this.deadTreshold = trehsold
     }
     /**
      * Generates the grid for the graph based on the number of columns specified.
@@ -34,8 +40,10 @@ class AnimatedGraph extends Rectangle {
         this.buildUIBorder()
         if (this.uiSettings['label'])
             this.buildUILabel(this.uiSettings['label'])
+         
     }
 
+   
     /**
      * Draws the border of the graph's rectangle.
      */
@@ -122,32 +130,70 @@ class AnimatedGraph extends Rectangle {
         var baseYaxis = this.rect.y + this.rect.height / 2
         let baseXaxis = this.rect.x
         let atkC = 0
+        let localScore = {}
         for (let i = attackVector.length; i > 0; i--) {
             atkC++
             this.context.beginPath();
             if (this.mode === "NOR")
-            this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height/(this.nSys/10) / numberOfAttacks) * (-score));
+                this.context.moveTo(baseXaxis + x, baseYaxis + (this.rect.height / (this.nSys / 10) / numberOfAttacks) * (-score));
             else
-                this.context.moveTo(baseXaxis + x, baseYaxis + (this.rect.height/2  / numberOfAttacks) * -score);
+                this.context.moveTo(baseXaxis + x, baseYaxis + (this.rect.height / 2 / numberOfAttacks) * -score);
             if (!attackVector[i]) {
-                if (this.mode === "SCR") score--
+                if (this.mode === "SCR" || this.mode === "GRP") score--
             } else {
-                if (this.mode === "REL") score += (this.realAttackCounter(attackVector,atkC)) / atkC;
-                else if (this.mode === "NOR") { score += this.realAttackCounter(attackVector,atkC) / Math.sqrt(atkC) }
+                if (this.mode === "REL") score += (this.realAttackCounter(attackVector, atkC)) / atkC;
+                else if (this.mode === "NOR") { score += this.realAttackCounter(attackVector, atkC) / Math.sqrt(atkC) }
                 else score++
             }
+
             x = (attackVector.length - i) * (this.rect.width / (numberOfAttacks));
             if (this.mode === "NOR")
-            this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height/(this.nSys/10) / numberOfAttacks) * (-score));
+                this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height / (this.nSys / 10) / numberOfAttacks) * (-score));
             else
-                this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height/2 / numberOfAttacks) * (-score));
+                this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height / 2 / numberOfAttacks) * (-score));
             this.context.stroke();
-            if (Math.floor(numberOfAttacks / 2) == i) { attackVector[0]['middle'] = (score) }
+            if (Math.floor(numberOfAttacks / 2) == atkC) { attackVector[0]['middle'] = (score) }
+            if (Math.floor(numberOfAttacks / 5) == atkC) { attackVector[0]['start'] = (score) }
+            if (this.mode === "GRP") {
+                let dead = false
+                if (score <= -Math.abs(this.deadTreshold)) {
+                    if (!dead) {
+                        dead = true
+                        attackVector[0]['color'] = "white"
+                        if (score == -Math.abs(this.deadTreshold))
+                            this.drawLineOfScore(baseYaxis, numberOfAttacks, score, attackVector[0]['color'], "green")
+                    }
+                }
+                if (score > 0 && score % 5 == 0 && localScore[score] == undefined && attackVector[0]['color'] !== "white") {
+
+                    if (this.brokeProcess[`${score}`] == undefined) this.brokeProcess[`${score}`] = 0
+                    localScore[score] = 0
+                    if (score % 10 == 0) {
+                        this.brokeProcess[`${score}`] += 1
+
+                        this.drawLineOfScore(baseYaxis, numberOfAttacks, score, attackVector[0]['color'], "red")
+                    } else {
+                        this.brokeProcess[`${score}`] += 1
+
+                        this.drawLineOfScore(baseYaxis, numberOfAttacks, score, attackVector[0]['color'], "yellow")
+                    }
+                }
+            }
+            attackVector[0]['final'] = (score)
         }
-        attackVector[0]['final'] = (score)
     }
 
+    drawLineOfScore(baseYaxis, numberOfAttacks, score, colorPrev, colorFut) {
+        this.context.lineWidth = 0.2
+        this.context.strokeStyle = colorFut
+        this.context.moveTo(this.rect.x, baseYaxis + (this.rect.height / 2 / numberOfAttacks) * (-score));
+        this.context.lineTo(this.rect.x + this.rect.width, baseYaxis + (this.rect.height / 2 / numberOfAttacks) * (-score));
+        this.context.stroke();
+        this.context.fillText(score, (this.rect.x), baseYaxis + (this.rect.height / 2 / numberOfAttacks) * (-score));
+        this.context.strokeStyle = colorPrev
+        this.context.lineWidth = 1.5
 
+    }
     /**
      * Creates a histogram based on the scores of the systems in this.attackMatrix[i][0]['final'].
      * The bars are yellow with black borders and extend horizontally.
@@ -195,14 +241,37 @@ class AnimatedGraph extends Rectangle {
         // Extract the final scores of the systems
         this.context.globalAlpha = 0.5; // Set the desired value between 0 and 1
 
-        const scoreFinals = this.attackMatrix.map(system => system[0]['final']);
-        const scoreMiddle = this.attackMatrix.map(system => system[0]['middle']);
+        if (this.mode != "GRP") {
+            var scoreFinals = this.attackMatrix.map(system => system[0]['final']);
+            var scoreMiddle = this.attackMatrix.map(system => system[0]['middle']);
+            var scoreStart = this.attackMatrix.map(system => system[0]['start']);
+            this.__printHistogram(scoreMiddle, "green", this.rect.width / 2, this.attackMatrix.length, this.rect);
+            this.__printHistogram(scoreFinals, "yellow", this.rect.width, this.attackMatrix.length, this.rect);
+            this.__printHistogram(scoreStart, "blue", this.rect.width / 5, this.attackMatrix.length, this.rect);
 
+        } else if (this.mode == "GRP") {
+            this.__grpHistogram(this.brokeProcess)
+        }
         // Find the minimum and maximum score
-        this.__printHistogram(scoreMiddle, "green", this.rect.width / 2, this.attackMatrix.length, this.rect);
-        this.__printHistogram(scoreFinals, "yellow", this.rect.width, this.attackMatrix.length, this.rect);
-
         this.context.globalAlpha = 1;
+    }
+
+    __grpHistogram(coordinate) {
+        const values = Object.values(coordinate);
+        const maxValue = Math.max(...values);
+        const barHeight = this.rect.height / Object.keys(coordinate).length;
+        const scaledValues = values.map(value => (value / maxValue) * this.rect.width);
+
+        for (let i = 0; i < scaledValues.length; i++) {
+            const y = i * barHeight + this.rect.y;
+            const x = this.rect.x + this.rect.width - scaledValues[i];
+            this.context.fillStyle = 'rgba(52, 152, 219, 0.7)'; // Colore con trasparenza
+            this.context.fillRect(x, y, scaledValues[i], barHeight);
+            this.context.fillStyle = 'red'; // Colore blu
+            this.context.fillText(values[i], x + scaledValues[i] / 2, y + barHeight / 2);
+            this.context.fillStyle = '#000';
+            this.context.fillText(Object.keys(coordinate)[i], this.rect.width - 5, y + barHeight / 2);
+        }
     }
 
 
@@ -211,6 +280,7 @@ class AnimatedGraph extends Rectangle {
     * Draws the entire graph, including the grid and systems.
     */
     drawInside() {
+        this.context.lineWidth = 0.5
         this.draw();
         this.generateGrid(this.nAtk)
         for (let i = 0; i < this.attackMatrix.length; i++) {
