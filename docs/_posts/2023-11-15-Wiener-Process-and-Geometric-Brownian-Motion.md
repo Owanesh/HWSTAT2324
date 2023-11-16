@@ -54,8 +54,8 @@ Imagine you're tracking the movement of a particle in water (Wiener process). Th
 
 **References**
 1. [Wiener, N. (1923). Differential-space. Journal of Mathematical Physics](https://sci-hub.se/10.1002/sapm192321131)
-2. [La nascita della finanza moderna: l’incontro dell’economia con la fisica](https://startingfinance.com/approfondimenti/nascita-finanza-moderna-fisica/)
-3. [Calcolo stocastico per la finanza](https://books.google.it/books?id=aWQO51T0LA8C&pg=PA1&hl=it#v=onepage&q&f=false)
+2. [La nascita della finanza moderna: l’incontro dell’economia con la fisica 🇮🇹](https://startingfinance.com/approfondimenti/nascita-finanza-moderna-fisica/)
+3. [Calcolo stocastico per la finanza 🇮🇹](https://books.google.it/books?id=aWQO51T0LA8C&pg=PA1&hl=it#v=onepage&q&f=false)
 
 ### A Simulation
 In Python, the script represent a Wiener process simulation involves generating random increments to model continuous random motion. For simulating Geometric Brownian Motion (GBM), stochastic calculus principles are applied to simulate exponential growth or decay of a quantity, commonly used for financial asset prices. 
