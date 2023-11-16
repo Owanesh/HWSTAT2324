@@ -39,7 +39,8 @@ class AttackMonitor {
             row.push({color:"#" + ((1 << 24) * Math.random() | 0).toString(16),final:0,middle:0})
             for (let j = 0; j < this.nAtk; j++) {
                 // Populates the matrix with true or false based on the attack probability
-                row.push(Math.random() <= this.probability ? true : false);
+                if(this.mode!="POI")row.push(Math.random() <= this.probability ? true : false);
+                else if(this.mode==="POI") row.push(Math.random() <= (this.probability*(1/j)) ? true : false);
             }
             matrix.push(row);
         }
