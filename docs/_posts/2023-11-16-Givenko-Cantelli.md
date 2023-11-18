@@ -4,8 +4,6 @@ author: Owanesh
 layout: post
 category: Thesis
 ---
-# Glivenko-Cantelli Theorem
-
 The Glivenko-Cantelli theorem is a fundamental result in probability theory and statistics. It states that, given a sample of independently and identically distributed (i.i.d.) random variables from a certain probability distribution, the empirical distribution function converges uniformly to the theoretical distribution function.
 
 In simpler terms, if you have a large sample from a population and calculate the empirical distribution function (cumulative) of the sample, it will increasingly approximate the true distribution function of the population as the sample size grows.

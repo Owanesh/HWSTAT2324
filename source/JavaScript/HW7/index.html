@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>🧪 [LAB] Homework 7</title>
+    <script src="../HW3/utils/objectManager.js"></script>
+    <script src="../HW3/utils/shapes.js"></script>
+    <script src="../HW3/animated.js"></script>
+    <script src="../HW3/attackMonitor.js"></script>
+
+
+</head>
+
+<body>
+    <h1>🧪 [LAB] Homework 7</h1>
+    <h2>Stochastic process</h2>
+    <canvas  id="myCanvas" width="1300" height="650"></canvas>
+    <br>
+    Probability of Event happen<input id="probInput" placeholder="" step="0.1" type="number" min="0"
+    ">
+    Number of Systems <input type=" number" placeholder="We suggest 100" id="sysInput" min="10" /><br>
+    Number of Events <input type="number" step="10" placeholder="We suggest 30" id="nAttacks" min="10" /> <button
+        onclick="start()">Play</button>
+    <script>
+        const app = new DynamicObjManager("myCanvas");
+        const initialRectSize = { width: 1100, height: 500 };
+        function start() {
+            app.clear()
+            app.flushObjects()
+            const probInput = parseFloat(document.getElementById("probInput").value);
+            const sysInput = parseInt(document.getElementById("sysInput").value);
+            const nAttacks = parseInt(document.getElementById("nAttacks").value);
+           
+
+            // Aggiorna gli oggetti grafici con i nuovi valori
+            const graphSettings = { probability: probInput, nSystems: sysInput, nAttacks: nAttacks, mode:"SDEBRWN" };
+
+            const graphUISettings = {fill: "rgba(200, 200, 200, 0.5)", border: "black", borderWidth: 2 }
+
+            const attackManager = new AttackMonitor(graphSettings)
+            const attackMatrix = attackManager.getMatrix()
+
+            var graph1 = new AnimatedGraph(app.canvas, { ...initialRectSize, x: 10, y: 140}, { ...graphUISettings, label: "Brownian Motion Process" }, graphSettings)
+            graph1.setAttackMatrix(attackMatrix)
+            app.addObjects([graph1]);
+        }
+    </script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+ 

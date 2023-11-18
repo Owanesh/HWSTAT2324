@@ -5,15 +5,15 @@ layout: post
 category: Thesis
 ---
 
-### Introduction to Random Variates Generation:
+### Introduction to Random Variates Generation
 
 Random variates generation is a fundamental aspect of computational science, statistics, and a wide array of scientific and engineering disciplines. It is a critical process in which we create sequences of numbers that exhibit the properties of randomness. These sequences, known as random variates, are used to model and simulate various aspects of uncertainty, enabling us to better understand and analyze complex phenomena.
 
-### Understanding Randomness:
+### Understanding Randomness
 
 **Randomness**, in its truest sense, refers to the absence of any discernible pattern or predictability in a sequence of events or outcomes. True randomness is elusive in deterministic computer systems, where everything is governed by algorithms and initial conditions. Therefore, the term "randomness" in the context of computer-generated numbers usually refers to **pseudo-randomness**, which is a sequence of numbers that appears random for practical purposes. These numbers are generated using specific algorithms and are crucial for a variety of applications.
 
-### Significance of Random Variates:
+### Significance of Random Variates
 
 The generation of random variates is not just a mathematical exercise; it is a foundational tool with significant practical importance in a variety of domains:
 
@@ -29,7 +29,7 @@ The generation of random variates is not just a mathematical exercise; it is a f
 
 **6. Scientific Experiments:** In scientific experiments, random variates are used to simulate experimental data under controlled conditions, helping scientists understand the statistical properties of their experiments.
 
-### Practical Applications:
+### Practical Applications
 
 Random variates generation is applied in diverse fields, from finance to epidemiology. For instance, in a financial context, it's used to simulate stock price movements, assess investment risks, and estimate option prices. In epidemiology, it can model disease spread and help design strategies to mitigate outbreaks. In all these applications, the ability to generate random variates accurately and efficiently is essential for obtaining meaningful and actionable results.
 
