@@ -114,7 +114,9 @@ class AnimatedGraph extends Rectangle {
 
         return count;
     }
-
+    gaussianRand() {
+        return Math.sqrt(-2 * Math.log(Math.random())) * Math.cos((2 * Math.PI) * Math.random())
+    }
 
     scoreCalculation(mode, previousScore, attack, attackCounter, attackVector) {
         switch (mode) {
@@ -130,10 +132,18 @@ class AnimatedGraph extends Rectangle {
             case "NOR": //NORMALIZED
                 if (attack) return previousScore + this.realAttackCounter(attackVector, attackCounter) / Math.sqrt(attackCounter)
                 break;
-            case "SDEBRWN": //NORMALIZED
-                if (attack) return previousScore + attackCounter / Math.sqrt(attackVector.length)
-                else return previousScore - attackCounter / Math.sqrt(attackVector.length)
-            case "POI": //NORMALIZED
+            case "genBRNMTN"://general brawnian motion
+                const mu = this.nAtk * this.probability;
+                const sigma = Math.sqrt(this.nAtk * this.probability * (1 - this.probability));
+                if (attack) return previousScore + (1 / Math.sqrt(this.nAtk)) * (mu + sigma * this.gaussianRand());
+                else return previousScore - (1 / Math.sqrt(this.nAtk)) * (mu + sigma * this.gaussianRand());
+            case "BRNMTN"://standard brawnian motion
+                if (attack) return previousScore +  Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1)); 
+                else return previousScore -   Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1)); 
+            case "geoBRNMTN": //geometric brawnian motion
+                if (attack) return previousScore +  Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1)); 
+                else return previousScore -   Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1)); 
+            case "POI": //POISSON INCRMNT
                 if (attack) return previousScore + 1
             default:
                 return previousScore
