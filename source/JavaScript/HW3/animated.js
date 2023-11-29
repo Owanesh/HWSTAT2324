@@ -118,31 +118,76 @@ class AnimatedGraph extends Rectangle {
         return Math.sqrt(-2 * Math.log(Math.random())) * Math.cos((2 * Math.PI) * Math.random())
     }
 
+    calcSDE_BlackScholes(previousPrice, volatility, riskFreeRate, dt, attack) {
+        // Black-Scholes parameters
+        const sigma = volatility;
+        const r = riskFreeRate;
+    
+        // Generate a random increment
+        const dW = Math.sqrt(dt) * Math.random();
+    
+        // Runge-Kutta coefficients
+        const k1 = dt * (r * previousPrice - 0.5 * sigma * sigma * previousPrice) + sigma * dW;
+        const k2 = dt * (r * (previousPrice + 0.5 * k1) - 0.5 * sigma * sigma * (previousPrice + 0.5 * k1)) + sigma * Math.sqrt(dt) * Math.random();
+        const k3 = dt * (r * (previousPrice + 0.5 * k2) - 0.5 * sigma * sigma * (previousPrice + 0.5 * k2)) + sigma * Math.sqrt(dt) * Math.random();
+        const k4 = dt * (r * (previousPrice + k3) - 0.5 * sigma * sigma * (previousPrice + k3)) + sigma * Math.sqrt(dt) * Math.random();
+    
+        // Update the price based on the Runge-Kutta formula
+        const increment = (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+    
+        // Apply the increment based on the attack flag
+        return attack ? previousPrice + increment : previousPrice - increment;
+    }
+
     scoreCalculation(mode, previousScore, attack, attackCounter, attackVector) {
         switch (mode) {
+            
             case "SCR": //SCORE
                 if (!attack) return previousScore - 1
                 else return previousScore + 1
             case "GRP": //SCORE
                 if (!attack) return previousScore - 1
                 else return previousScore + 1
+                case "ABS": //SCORE
+                if (!attack) return previousScore 
+                else return previousScore + 1
             case "REL": //RELATIVE FREQUEnCY
                 if (attack) return previousScore + (this.realAttackCounter(attackVector, attackCounter)) / attackCounter;
-                break;
+                else return previousScore
             case "NOR": //NORMALIZED
                 if (attack) return previousScore + this.realAttackCounter(attackVector, attackCounter) / Math.sqrt(attackCounter)
-                break;
-            case "genBRNMTN"://general brawnian motion
-                const mu = this.nAtk * this.probability;
-                const sigma = Math.sqrt(this.nAtk * this.probability * (1 - this.probability));
+                else return previousScore
+            case "SDEgenBRNMTN"://general brawnian motion
+                var sigma = Math.sqrt(this.nAtk * this.probability * (1 - this.probability));
+
+                var mu = this.nAtk * this.probability;
                 if (attack) return previousScore + (1 / Math.sqrt(this.nAtk)) * (mu + sigma * this.gaussianRand());
                 else return previousScore - (1 / Math.sqrt(this.nAtk)) * (mu + sigma * this.gaussianRand());
-            case "BRNMTN"://standard brawnian motion
+            case "SDEBRNMTN"://standard brawnian motion
                 if (attack) return previousScore +  Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1)); 
                 else return previousScore -   Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1)); 
-            case "geoBRNMTN": //geometric brawnian motion
-                if (attack) return previousScore +  Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1)); 
-                else return previousScore -   Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1)); 
+            case "SDEgeoBRNMTN": //geometric brawnian motion
+                if (attack) return previousScore +  Math.exp(this.muK+this.sigma*this.gaussianRand());
+                else return previousScore -   Math.exp(this.muK+this.sigma*this.gaussianRand());
+
+            case "SDEhullWHITE": // Hull-White tramite il metodo di Runge-Kutta
+                var sigma = Math.sqrt(this.nAtk * this.probability * (1 - this.probability));
+                var dt = 0.01; // passo temporale
+                var theta = 0.3
+                let r = previousScore; // tasso di interesse iniziale
+                var dW = Math.sqrt(dt) * Math.random(); // incremento di Wiener
+                var k1 = dt * (theta - 0.1 * r) + sigma * dW;
+                var k2 = dt * (theta - 0.1 * (r + 0.5 * k1)) + sigma * Math.sqrt(dt) * Math.random();
+                var k3 = dt * (theta - 0.1 * (r + 0.5 * k2)) + sigma * Math.sqrt(dt) * Math.random();
+                var k4 = dt * (theta - 0.1 * (r + k3)) + sigma * Math.sqrt(dt) * Math.random();
+                if (attack) return previousScore + (k1 + 2*k2 + 2*k3 + k4) / 6;  
+                else return previousScore - (k1 + 2*k2 + 2*k3 + k4) / 6;  
+            case "SDEblackSCHOLES":
+                // Esempio di utilizzo
+                var riskFreeRate = 0.04;
+                var dt = 0.08; // passo temporale
+                return this.calcSDE_BlackScholes(previousScore, this.probability, riskFreeRate, dt, attack);
+
             case "POI": //POISSON INCRMNT
                 if (attack) return previousScore + 1
             default:
@@ -175,7 +220,6 @@ class AnimatedGraph extends Rectangle {
         let maxValue = this.maxValuePossible(this.mode, attackVector)
         let dead = false
         let drawLineOfScore = (score, color) => this.drawLineOfScore(baseYaxis, numberOfAttacks, score, attackVector[0]['color'], color);
-
         for (let i = attackVector.length; i > 0; i--) {
             atkC++
             this.context.beginPath();
@@ -189,6 +233,7 @@ class AnimatedGraph extends Rectangle {
             this.handleGRPMode(score, drawLineOfScore, attackVector, dead, localScore);
             attackVector[0]['final'] = (score)
         }
+
     }
 
     handleGRPMode(score, drawLineOfScore, attackVector, dead, localScore) {
