@@ -29,6 +29,10 @@ class AnimatedGraph extends Rectangle {
         if (this.mode === "GRP")
             this.deadTreshold = trehsold
     }
+
+    setExtraParams(extraParametersForSDE) {
+        this.extraParams = extraParametersForSDE
+    }
     /**
      * Generates the grid for the graph based on the number of columns specified.
      *
@@ -101,19 +105,17 @@ class AnimatedGraph extends Rectangle {
         if (indice < 0 || indice >= array.length) {
             return -1; // Invalid index
         }
-
         // Initialize a counter
         let count = 0;
-
         // Iterate through the array up to the specified index
         for (let i = 0; i <= indice; i++) {
             if (array[i]) { // Count only 'true' values
                 count++;
             }
         }
-
         return count;
     }
+
     gaussianRand() {
         return Math.sqrt(-2 * Math.log(Math.random())) * Math.cos((2 * Math.PI) * Math.random())
     }
@@ -122,34 +124,34 @@ class AnimatedGraph extends Rectangle {
         // Black-Scholes parameters
         const sigma = volatility;
         const r = riskFreeRate;
-    
+
         // Generate a random increment
         const dW = Math.sqrt(dt) * Math.random();
-    
+
         // Runge-Kutta coefficients
         const k1 = dt * (r * previousPrice - 0.5 * sigma * sigma * previousPrice) + sigma * dW;
         const k2 = dt * (r * (previousPrice + 0.5 * k1) - 0.5 * sigma * sigma * (previousPrice + 0.5 * k1)) + sigma * Math.sqrt(dt) * Math.random();
         const k3 = dt * (r * (previousPrice + 0.5 * k2) - 0.5 * sigma * sigma * (previousPrice + 0.5 * k2)) + sigma * Math.sqrt(dt) * Math.random();
         const k4 = dt * (r * (previousPrice + k3) - 0.5 * sigma * sigma * (previousPrice + k3)) + sigma * Math.sqrt(dt) * Math.random();
-    
+
         // Update the price based on the Runge-Kutta formula
         const increment = (k1 + 2 * k2 + 2 * k3 + k4) / 6;
-    
+
         // Apply the increment based on the attack flag
         return attack ? previousPrice + increment : previousPrice - increment;
     }
 
     scoreCalculation(mode, previousScore, attack, attackCounter, attackVector) {
         switch (mode) {
-            
+
             case "SCR": //SCORE
                 if (!attack) return previousScore - 1
                 else return previousScore + 1
             case "GRP": //SCORE
                 if (!attack) return previousScore - 1
                 else return previousScore + 1
-                case "ABS": //SCORE
-                if (!attack) return previousScore 
+            case "ABS": //SCORE
+                if (!attack) return previousScore
                 else return previousScore + 1
             case "REL": //RELATIVE FREQUEnCY
                 if (attack) return previousScore + (this.realAttackCounter(attackVector, attackCounter)) / attackCounter;
@@ -159,33 +161,35 @@ class AnimatedGraph extends Rectangle {
                 else return previousScore
             case "SDEgenBRNMTN"://general brawnian motion
                 var sigma = Math.sqrt(this.nAtk * this.probability * (1 - this.probability));
-
                 var mu = this.nAtk * this.probability;
                 if (attack) return previousScore + (1 / Math.sqrt(this.nAtk)) * (mu + sigma * this.gaussianRand());
                 else return previousScore - (1 / Math.sqrt(this.nAtk)) * (mu + sigma * this.gaussianRand());
             case "SDEBRNMTN"://standard brawnian motion
-                if (attack) return previousScore +  Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1)); 
-                else return previousScore -   Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1)); 
+                if (attack) return previousScore + Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1));
+                else return previousScore - Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1));
             case "SDEgeoBRNMTN": //geometric brawnian motion
-                if (attack) return previousScore +  Math.exp(this.muK+this.sigma*this.gaussianRand());
-                else return previousScore -   Math.exp(this.muK+this.sigma*this.gaussianRand());
+            var mu = this.extraParams['mu']; // passo temporale
+            var sigma = this.extraParams['sigma']
+            var inc = mu + sigma * this.gaussianRand()
+                if (attack) return previousScore + Math.exp(inc);
+                else return previousScore - Math.exp(inc);
 
             case "SDEhullWHITE": // Hull-White tramite il metodo di Runge-Kutta
                 var sigma = Math.sqrt(this.nAtk * this.probability * (1 - this.probability));
-                var dt = 0.01; // passo temporale
-                var theta = 0.3
+                var dt = this.extraParams['dt']; // passo temporale
+                var theta = this.extraParams['theta']
                 let r = previousScore; // tasso di interesse iniziale
                 var dW = Math.sqrt(dt) * Math.random(); // incremento di Wiener
                 var k1 = dt * (theta - 0.1 * r) + sigma * dW;
                 var k2 = dt * (theta - 0.1 * (r + 0.5 * k1)) + sigma * Math.sqrt(dt) * Math.random();
                 var k3 = dt * (theta - 0.1 * (r + 0.5 * k2)) + sigma * Math.sqrt(dt) * Math.random();
                 var k4 = dt * (theta - 0.1 * (r + k3)) + sigma * Math.sqrt(dt) * Math.random();
-                if (attack) return previousScore + (k1 + 2*k2 + 2*k3 + k4) / 6;  
-                else return previousScore - (k1 + 2*k2 + 2*k3 + k4) / 6;  
+                if (attack) return previousScore + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+                else return previousScore - (k1 + 2 * k2 + 2 * k3 + k4) / 6;
             case "SDEblackSCHOLES":
                 // Esempio di utilizzo
-                var riskFreeRate = 0.04;
-                var dt = 0.08; // passo temporale
+                var riskFreeRate = this.extraParams['riskFreeRate'];
+                var dt = this.extraParams['dt']; // passo temporale
                 return this.calcSDE_BlackScholes(previousScore, this.probability, riskFreeRate, dt, attack);
 
             case "POI": //POISSON INCRMNT
@@ -209,6 +213,8 @@ class AnimatedGraph extends Rectangle {
      * @param attackVector An array representing the attack vector for the system.
      */
     analyzeSystem(attackVector) {
+        
+
         var x = 0;
         var score = 1;
         this.context.strokeStyle = attackVector[0]['color']
@@ -232,6 +238,7 @@ class AnimatedGraph extends Rectangle {
             if (Math.floor(numberOfAttacks / 5) == atkC) { attackVector[0]['start'] = (score) }
             this.handleGRPMode(score, drawLineOfScore, attackVector, dead, localScore);
             attackVector[0]['final'] = (score)
+    
         }
 
     }
@@ -361,10 +368,4 @@ class AnimatedGraph extends Rectangle {
         this.drawInside();
     }
 
-
-    setSDE(mode) {
-        if (mode == "BRWNMTN") {
-            score = 1
-        }
-    }
 }

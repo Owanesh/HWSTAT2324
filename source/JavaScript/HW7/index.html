@@ -127,29 +127,29 @@
         <div id="displayValues">
             <p>For the selected mode, enter the following values:</p>
             <div id="mukInput" style="display: none;">
-                <span>Mu [μ] or K</span>
-                <input type="number" placeholder="We suggest 100" id="muInput" min="10" />
+                <span>Mu [μ]</span>
+                <input type="number" id="muInput" step="0.1" type="number" min="0" value="0.1" />
             </div>
             <div id="sigmaInput" style="display: none;">
                 <span style="color:red">sigma [σ]</span>
-                <input type="number" placeholder="We suggest 100" id="sigInput" min="10" />
+                <input type="number" id="sigInput" step="0.1" type="number" min="0" value="0.1" />
             </div>
             <div id="theta" style="display: none;">
                 <span style="color:blue">theta [θ]</span>
-                <input type="number" placeholder="We suggest 100" id="thetaInput" min="10" />
+                <input type="number" id="thetaInput" step="0.1" type="number" min="0" value="0.3" />
             </div>
             <div id="dt" style="display: none;">
                 <span style="color:green">dT</span>
-                <input type="number" placeholder="We suggest 100" id="dtInput" min="10" />
+                <input type="number" id="dtInput" step="0.1" type="number" min="0" value="0.1" />
             </div>
             <div id="riskFreeRate" style="display: none;">
                 <span style="color:orange">Risk Free Rate</span>
-                <input type="number" placeholder="We suggest 100" id="riskFreeRateInput" min="10" />
+                <input type="number" id="riskFreeRateInput" step="0.1" type="number" min="0" value="0.1" />
             </div>
             <p>Probability of Event happening</p>
             <input id="probInput" placeholder="" step="0.1" type="number" min="0" value="0.5">
             <p>Number of Systems</p>
-            <input type="number" placeholder="We suggest 100" id="sysInput" min="10" value="100" />
+            <input type="number" id="sysInput" min="10" value="100" />
             <p>Number of Events</p>
             <input type="number" step="10" placeholder="We suggest 30" id="nAttacks" min="10" value="200" />
             <br>
@@ -165,71 +165,79 @@
     </div>
 
     <script defer>
-        document.addEventListener("DOMContentLoaded", function() {
-          document.getElementById("start").addEventListener("click", function() {
-            // Additional logic for handling canvas or other functionality after pressing the "Play" button
-            var canvas = document.getElementById("myCanvas");
-            canvas.style.display = "block";
-            document.getElementById("canvasAlert").style.display="block"
-            start()
-            // Add your canvas drawing or other logic here
-        })
-        // Get references to the select box and the div to display values
-        const sdeSelection = document.getElementById('sdeSelection');
-        var displayValues = document.getElementById('displayValues');
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("start").addEventListener("click", function () {
+                // Additional logic for handling canvas or other functionality after pressing the "Play" button
+                var canvas = document.getElementById("myCanvas");
+                canvas.style.display = "block";
+                document.getElementById("canvasAlert").style.display = "block"
+                start()
+                // Add your canvas drawing or other logic here
+            })
+            // Get references to the select box and the div to display values
+            const sdeSelection = document.getElementById('sdeSelection');
+            var displayValues = document.getElementById('displayValues');
 
-        // Event listener for the select box
-        sdeSelection.addEventListener('change', function () {
-            // Get the selected value
-            var selectedValue = sdeSelection.value;
+            // Event listener for the select box
+            sdeSelection.addEventListener('change', function () {
+                // Get the selected value
+                var selectedValue = sdeSelection.value;
 
-            // Hide all option-specific divs
-            document.getElementById('mukInput').style.display = 'none';
-            document.getElementById('sigmaInput').style.display = 'none';
-            document.getElementById('thetaInput').style.display = 'none';
-            document.getElementById('riskFreeRate').style.display = 'none';
-            document.getElementById('dt').style.display = 'none';
+                // Hide all option-specific divs
+                document.getElementById('mukInput').style.display = 'none';
+                document.getElementById('sigmaInput').style.display = 'none';
+                document.getElementById('theta').style.display = 'none';
+                document.getElementById('riskFreeRate').style.display = 'none';
+                document.getElementById('dt').style.display = 'none';
 
-            // Show the relevant div based on the selected value
-            if (selectedValue === 'SDEhullWHITE') {
-                document.getElementById('sigmaInput').style.display = 'block';
-                document.getElementById('thetaInput').style.display = 'block';
+                // Show the relevant div based on the selected value
+                if (selectedValue === 'SDEgeoBRNMTN') {
+                    document.getElementById('mukInput').style.display = 'block';
+                    document.getElementById('sigmaInput').style.display = 'block';
+                 } else if (selectedValue === 'SDEblackSCHOLES') {
+                    document.getElementById('dt').style.display = 'block';
+                    document.getElementById('riskFreeRate').style.display = 'block';
+                } else if (selectedValue === 'SDEhullWHITE') {
+                    document.getElementById('dt').style.display = 'block';
+                    document.getElementById('theta').style.display = 'block';
+                }  
 
-            } else if (selectedValue === 'SDEblackSCHOLES') {
-                document.getElementById('dt').style.display = 'block';
-                document.getElementById('riskFreeRate').style.display = 'block';
-            } else if (selectedValue === 'option3') {
-                document.getElementById('sigmaInput').style.display = 'block';
+                // Show or hide the overall container based on whether an option is selected
+                displayValues.style.display = selectedValue ? 'block' : 'none';
+            });
+            const app = new DynamicObjManager("myCanvas");
+            const initialRectSize = { width: 1150, height: 600 };
+            function start() {
+                app.clear()
+                app.flushObjects()
+                const probInput = parseFloat(document.getElementById("probInput").value);
+                const sysInput = parseInt(document.getElementById("sysInput").value);
+                const nAttacks = parseInt(document.getElementById("nAttacks").value);
 
-                document.getElementById('thetaInput').style.display = 'block';
+
+                // Aggiorna gli oggetti grafici con i nuovi valori
+                const graphSettings = { probability: probInput, nSystems: sysInput, nAttacks: nAttacks, mode: sdeSelection.value };
+
+                const graphUISettings = { fill: "rgba(200, 200, 200, 0.5)", border: "black", borderWidth: 2 }
+
+                const attackManager = new AttackMonitor(graphSettings)
+                const attackMatrix = attackManager.getMatrix()
+
+                var graph1 = new AnimatedGraph(app.canvas, { ...initialRectSize, x: 10, y: 10 }, { ...graphUISettings, label: sdeSelection.selectedOptions[0].text }, graphSettings)
+                if (sdeSelection.value.startsWith("SDE")) {
+                    const extras = {}
+                    extras["sigma"]=parseFloat(document.getElementById("sigInput").value)
+                    extras["mu"]=parseFloat(document.getElementById("muInput").value)
+                    extras["theta"]=parseFloat(document.getElementById("thetaInput").value)
+                    extras["dt"]=parseFloat(document.getElementById("dtInput").value)
+                    extras["riskFreeRate"]=parseFloat(document.getElementById("riskFreeRateInput").value)
+                    graph1.setExtraParams(extras)
+                }
+                graph1.setAttackMatrix(attackMatrix)
+
+                app.addObjects([graph1]);
             }
-
-            // Show or hide the overall container based on whether an option is selected
-            displayValues.style.display = selectedValue ? 'block' : 'none';
-        });
-        const app = new DynamicObjManager("myCanvas");
-        const initialRectSize = { width: 1150, height: 600 };
-        function start() {
-            app.clear()
-            app.flushObjects()
-            const probInput = parseFloat(document.getElementById("probInput").value);
-            const sysInput = parseInt(document.getElementById("sysInput").value);
-            const nAttacks = parseInt(document.getElementById("nAttacks").value);
-
-
-            // Aggiorna gli oggetti grafici con i nuovi valori
-            const graphSettings = { probability: probInput, nSystems: sysInput, nAttacks: nAttacks, mode: sdeSelection.value };
-
-            const graphUISettings = { fill: "rgba(200, 200, 200, 0.5)", border: "black", borderWidth: 2 }
-
-            const attackManager = new AttackMonitor(graphSettings)
-            const attackMatrix = attackManager.getMatrix()
-
-            var graph1 = new AnimatedGraph(app.canvas, { ...initialRectSize, x: 10, y: 10 }, { ...graphUISettings, label: sdeSelection.selectedOptions[0].text }, graphSettings)
-            graph1.setAttackMatrix(attackMatrix)
-            app.addObjects([graph1]);
-        }
-    })
+        })
     </script>
 </body>
 
