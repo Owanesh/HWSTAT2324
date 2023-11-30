@@ -168,9 +168,9 @@ class AnimatedGraph extends Rectangle {
                 if (attack) return previousScore + Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1));
                 else return previousScore - Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1));
             case "SDEgeoBRNMTN": //geometric brawnian motion
-            var mu = this.extraParams['mu']; // passo temporale
-            var sigma = this.extraParams['sigma']
-            var inc = mu + sigma * this.gaussianRand()
+                var mu = this.extraParams['mu']; // passo temporale
+                var sigma = this.extraParams['sigma']
+                var inc = mu + sigma * this.gaussianRand()
                 if (attack) return previousScore + Math.exp(inc);
                 else return previousScore - Math.exp(inc);
 
@@ -213,8 +213,6 @@ class AnimatedGraph extends Rectangle {
      * @param attackVector An array representing the attack vector for the system.
      */
     analyzeSystem(attackVector) {
-        
-
         var x = 0;
         var score = 1;
         this.context.strokeStyle = attackVector[0]['color']
@@ -238,9 +236,7 @@ class AnimatedGraph extends Rectangle {
             if (Math.floor(numberOfAttacks / 5) == atkC) { attackVector[0]['start'] = (score) }
             this.handleGRPMode(score, drawLineOfScore, attackVector, dead, localScore);
             attackVector[0]['final'] = (score)
-    
         }
-
     }
 
     handleGRPMode(score, drawLineOfScore, attackVector, dead, localScore) {
