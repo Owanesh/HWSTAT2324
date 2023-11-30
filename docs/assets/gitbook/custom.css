@@ -175,7 +175,7 @@
 .markdown-section blockquote.block-tip {
     border-color: var(--c-tip);
     background-color: var(--c-tip-bg);
-    color: var(--c-tip-text);
+    color: gray !important;
     font-family: var(--font-family);
 }
 
