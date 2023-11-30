@@ -15,7 +15,7 @@ The fancy formula for this bell curve is a bit complex, but it helps us figure o
 
 The PDF of the Gaussian distribution is given by the formula:
 
-$f(x | \mu, \sigma) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x - \mu}{\sigma}\right)^2}$
+$$f(x | \mu, \sigma) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x - \mu}{\sigma}\right)^2}$$
 where:
 
 - $(x | \mu, \sigma)$ is the probability density function (PDF) of the Gaussian distribution.
