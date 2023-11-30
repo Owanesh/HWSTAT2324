@@ -17,7 +17,7 @@ class Rectangle {
         this.isDragging = false;
         this.dragOffsetX = 0;
         this.dragOffsetY = 0;
-        this.resizeHandleSize = 8; // Dimensione del quadratino nero per il ridimensionamento
+        this.resizeHandleSize = 12; // Dimensione del quadratino nero per il ridimensionamento
         this.rect = rectSize
         this.fillColor = uiSettings['fill'];
         this.borderColor = uiSettings['border'];

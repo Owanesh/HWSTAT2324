@@ -29,6 +29,10 @@ class AnimatedGraph extends Rectangle {
         if (this.mode === "GRP")
             this.deadTreshold = trehsold
     }
+
+    setExtraParams(extraParametersForSDE) {
+        this.extraParams = extraParametersForSDE
+    }
     /**
      * Generates the grid for the graph based on the number of columns specified.
      *
@@ -40,10 +44,10 @@ class AnimatedGraph extends Rectangle {
         this.buildUIBorder()
         if (this.uiSettings['label'])
             this.buildUILabel(this.uiSettings['label'])
-         
+
     }
 
-   
+
     /**
      * Draws the border of the graph's rectangle.
      */
@@ -101,21 +105,107 @@ class AnimatedGraph extends Rectangle {
         if (indice < 0 || indice >= array.length) {
             return -1; // Invalid index
         }
-
         // Initialize a counter
         let count = 0;
-
         // Iterate through the array up to the specified index
         for (let i = 0; i <= indice; i++) {
             if (array[i]) { // Count only 'true' values
                 count++;
             }
         }
-
         return count;
     }
 
+    gaussianRand() {
+        return Math.sqrt(-2 * Math.log(Math.random())) * Math.cos((2 * Math.PI) * Math.random())
+    }
 
+    calcSDE_BlackScholes(previousPrice, volatility, riskFreeRate, dt, attack) {
+        // Black-Scholes parameters
+        const sigma = volatility;
+        const r = riskFreeRate;
+
+        // Generate a random increment
+        const dW = Math.sqrt(dt) * Math.random();
+
+        // Runge-Kutta coefficients
+        const k1 = dt * (r * previousPrice - 0.5 * sigma * sigma * previousPrice) + sigma * dW;
+        const k2 = dt * (r * (previousPrice + 0.5 * k1) - 0.5 * sigma * sigma * (previousPrice + 0.5 * k1)) + sigma * Math.sqrt(dt) * Math.random();
+        const k3 = dt * (r * (previousPrice + 0.5 * k2) - 0.5 * sigma * sigma * (previousPrice + 0.5 * k2)) + sigma * Math.sqrt(dt) * Math.random();
+        const k4 = dt * (r * (previousPrice + k3) - 0.5 * sigma * sigma * (previousPrice + k3)) + sigma * Math.sqrt(dt) * Math.random();
+
+        // Update the price based on the Runge-Kutta formula
+        const increment = (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+
+        // Apply the increment based on the attack flag
+        return attack ? previousPrice + increment : previousPrice - increment;
+    }
+
+    scoreCalculation(mode, previousScore, attack, attackCounter, attackVector) {
+        switch (mode) {
+
+            case "SCR": //SCORE
+                if (!attack) return previousScore - 1
+                else return previousScore + 1
+            case "GRP": //SCORE
+                if (!attack) return previousScore - 1
+                else return previousScore + 1
+            case "ABS": //SCORE
+                if (!attack) return previousScore
+                else return previousScore + 1
+            case "REL": //RELATIVE FREQUEnCY
+                if (attack) return previousScore + (this.realAttackCounter(attackVector, attackCounter)) / attackCounter;
+                else return previousScore
+            case "NOR": //NORMALIZED
+                if (attack) return previousScore + this.realAttackCounter(attackVector, attackCounter) / Math.sqrt(attackCounter)
+                else return previousScore
+            case "SDEgenBRNMTN"://general brawnian motion
+                var sigma = Math.sqrt(this.nAtk * this.probability * (1 - this.probability));
+                var mu = this.nAtk * this.probability;
+                if (attack) return previousScore + (1 / Math.sqrt(this.nAtk)) * (mu + sigma * this.gaussianRand());
+                else return previousScore - (1 / Math.sqrt(this.nAtk)) * (mu + sigma * this.gaussianRand());
+            case "SDEBRNMTN"://standard brawnian motion
+                if (attack) return previousScore + Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1));
+                else return previousScore - Math.floor(attackCounter + this.gaussianRand() * (attackVector.length - attackCounter + 1));
+            case "SDEgeoBRNMTN": //geometric brawnian motion
+                var mu = this.extraParams['mu']; // passo temporale
+                var sigma = this.extraParams['sigma']
+                var inc = mu + sigma * this.gaussianRand()
+                if (attack) return previousScore + Math.exp(inc);
+                else return previousScore - Math.exp(inc);
+
+            case "SDEhullWHITE": // Hull-White tramite il metodo di Runge-Kutta
+                var sigma = Math.sqrt(this.nAtk * this.probability * (1 - this.probability));
+                var dt = this.extraParams['dt']; // passo temporale
+                var theta = this.extraParams['theta']
+                let r = previousScore; // tasso di interesse iniziale
+                var dW = Math.sqrt(dt) * Math.random(); // incremento di Wiener
+                var k1 = dt * (theta - 0.1 * r) + sigma * dW;
+                var k2 = dt * (theta - 0.1 * (r + 0.5 * k1)) + sigma * Math.sqrt(dt) * Math.random();
+                var k3 = dt * (theta - 0.1 * (r + 0.5 * k2)) + sigma * Math.sqrt(dt) * Math.random();
+                var k4 = dt * (theta - 0.1 * (r + k3)) + sigma * Math.sqrt(dt) * Math.random();
+                if (attack) return previousScore + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+                else return previousScore - (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+            case "SDEblackSCHOLES":
+                // Esempio di utilizzo
+                var riskFreeRate = this.extraParams['riskFreeRate'];
+                var dt = this.extraParams['dt']; // passo temporale
+                return this.calcSDE_BlackScholes(previousScore, this.probability, riskFreeRate, dt, attack);
+
+            case "POI": //POISSON INCRMNT
+                if (attack) return previousScore + 1
+            default:
+                return previousScore
+        }
+    }
+
+    maxValuePossible(mode, attackVector) {
+        var score = 0
+        for (let i = attackVector.length; i > 0; i--) {
+            score = this.scoreCalculation(mode, score, true, i, attackVector)
+        }
+        return score;
+    }
 
     /**
      * Analyzes a system based on an attack vector and draws the corresponding graph lines.
@@ -131,55 +221,37 @@ class AnimatedGraph extends Rectangle {
         let baseXaxis = this.rect.x
         let atkC = 0
         let localScore = {}
+        let maxValue = this.maxValuePossible(this.mode, attackVector)
+        let dead = false
+        let drawLineOfScore = (score, color) => this.drawLineOfScore(baseYaxis, numberOfAttacks, score, attackVector[0]['color'], color);
         for (let i = attackVector.length; i > 0; i--) {
             atkC++
             this.context.beginPath();
-            if (this.mode === "NOR")
-                this.context.moveTo(baseXaxis + x, baseYaxis + (this.rect.height / (this.nSys / 10) / numberOfAttacks) * (-score));
-            else
-                this.context.moveTo(baseXaxis + x, baseYaxis + (this.rect.height / 2 / numberOfAttacks) * -score);
-            if (!attackVector[i]) {
-                if (this.mode === "SCR" || this.mode === "GRP") score--
-            } else {
-                if (this.mode === "REL") score += (this.realAttackCounter(attackVector, atkC)) / atkC;
-                else if (this.mode === "NOR") { score += this.realAttackCounter(attackVector, atkC) / Math.sqrt(atkC) }
-                else score++
-            }
-
+            this.context.moveTo(baseXaxis + x, baseYaxis - (score) * (this.rect.height / 2) / maxValue)
+            score = this.scoreCalculation(this.mode, score, attackVector[i], atkC, attackVector)
             x = (attackVector.length - i) * (this.rect.width / (numberOfAttacks));
-            if (this.mode === "NOR")
-                this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height / (this.nSys / 10) / numberOfAttacks) * (-score));
-            else
-                this.context.lineTo(baseXaxis + x, baseYaxis + (this.rect.height / 2 / numberOfAttacks) * (-score));
+            this.context.lineTo(baseXaxis + x, baseYaxis - (score) * (this.rect.height / 2) / maxValue)
             this.context.stroke();
             if (Math.floor(numberOfAttacks / 2) == atkC) { attackVector[0]['middle'] = (score) }
             if (Math.floor(numberOfAttacks / 5) == atkC) { attackVector[0]['start'] = (score) }
-            if (this.mode === "GRP") {
-                let dead = false
-                if (score <= -Math.abs(this.deadTreshold)) {
-                    if (!dead) {
-                        dead = true
-                        attackVector[0]['color'] = "white"
-                        if (score == -Math.abs(this.deadTreshold))
-                            this.drawLineOfScore(baseYaxis, numberOfAttacks, score, attackVector[0]['color'], "green")
-                    }
-                }
-                if (score > 0 && score % 5 == 0 && localScore[score] == undefined && attackVector[0]['color'] !== "white") {
-
-                    if (this.brokeProcess[`${score}`] == undefined) this.brokeProcess[`${score}`] = 0
-                    localScore[score] = 0
-                    if (score % 10 == 0) {
-                        this.brokeProcess[`${score}`] += 1
-
-                        this.drawLineOfScore(baseYaxis, numberOfAttacks, score, attackVector[0]['color'], "red")
-                    } else {
-                        this.brokeProcess[`${score}`] += 1
-
-                        this.drawLineOfScore(baseYaxis, numberOfAttacks, score, attackVector[0]['color'], "yellow")
-                    }
-                }
-            }
+            this.handleGRPMode(score, drawLineOfScore, attackVector, dead, localScore);
             attackVector[0]['final'] = (score)
+        }
+    }
+
+    handleGRPMode(score, drawLineOfScore, attackVector, dead, localScore) {
+        if (this.mode !== "GRP") return;
+        if (score <= -Math.abs(this.deadTreshold) && !dead) {
+            dead = true;
+            attackVector[0]['color'] = "white";
+            if (score === -Math.abs(this.deadTreshold)) drawLineOfScore(score, "green");
+        }
+        if (score > 0 && score % 5 === 0 && localScore[score] === undefined && attackVector[0]['color'] !== "white") {
+            if (this.brokeProcess[`${score}`] === undefined) this.brokeProcess[`${score}`] = 0;
+            localScore[score] = 0;
+            this.brokeProcess[`${score}`] += 1;
+            const lineColor = score % 10 === 0 ? "red" : "yellow";
+            drawLineOfScore(score, lineColor);
         }
     }
 
@@ -217,7 +289,6 @@ class AnimatedGraph extends Rectangle {
 
         // Find the maximum count to normalize the bar heights
         const maxCount = Math.max(...intervalCounts);
-
         const barUIWidth = rect.height / numIntervals;
         const barHeightFactor = rect.width / 5;
 
@@ -225,7 +296,6 @@ class AnimatedGraph extends Rectangle {
             const y = rect.y + i * barUIWidth;
             const barUIHeight = (intervalCounts[i] / maxCount) * barHeightFactor;
             const baseX = rect.x + startingPoint - barUIHeight;
-
             this.context.fillStyle = color;
             this.context.strokeStyle = "black";
             this.context.fillRect(baseX, y, barUIHeight, barUIWidth);
@@ -240,7 +310,6 @@ class AnimatedGraph extends Rectangle {
     createHistogram() {
         // Extract the final scores of the systems
         this.context.globalAlpha = 0.5; // Set the desired value between 0 and 1
-
         if (this.mode != "GRP") {
             var scoreFinals = this.attackMatrix.map(system => system[0]['final']);
             var scoreMiddle = this.attackMatrix.map(system => system[0]['middle']);
@@ -248,7 +317,6 @@ class AnimatedGraph extends Rectangle {
             this.__printHistogram(scoreMiddle, "green", this.rect.width / 2, this.attackMatrix.length, this.rect);
             this.__printHistogram(scoreFinals, "yellow", this.rect.width, this.attackMatrix.length, this.rect);
             this.__printHistogram(scoreStart, "blue", this.rect.width / 5, this.attackMatrix.length, this.rect);
-
         } else if (this.mode == "GRP") {
             this.__grpHistogram(this.brokeProcess)
         }
@@ -295,4 +363,5 @@ class AnimatedGraph extends Rectangle {
         this.isFlipped = !this.isFlipped;
         this.drawInside();
     }
+
 }
