@@ -1,3 +1,11 @@
+---
+title: The Law of Large Numbers (LLN)
+author: Owanesh
+layout: post
+date: 2023-12-04
+category: Thesis
+---
+
 The Law of Large Numbers (LLN) is a fundamental theorem in probability theory that describes the behavior of sample averages as the sample size increases. 
 
 #### Meaning of LLN:
