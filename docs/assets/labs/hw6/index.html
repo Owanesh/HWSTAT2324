@@ -13,20 +13,28 @@
 
 <body>
     <div class="sidebar">
-        <div id="displayValues"></div>
-        Probability<input id="probInput" placeholder="" step="0.1" type="number" min="0" ">
-    Systems <input type=" number" placeholder="We suggest 100" id="sysInput" min="10" /><br>
-        S <input type=" number" placeholder="30" id="deadLine" min="10" /><br>
-        N <input type="number" step="10" placeholder="We suggest 30" id="nAttacks" min="10" /> <button
+        <h2>Settings</h2>
+        Probability<input id="probInput" value="0.5" step="0.1" type="number" min="0" max="1" >
+    Systems <input type="number" value="3000" id="sysInput" min="10" /><br>
+        S <input type="number" value="10" id="deadLine" min="10" /><br>
+        N <input type="number" step="10" value="150"   id="nAttacks" min="10" /> <button
             id="start">Play</button>
+            <br>
+            <i style="color:lightgray" >The Gabler Ruin Problem is a mathematical puzzle that involves determining the probability of a random walk reaching a specific point before returning to the origin on a one-dimensional lattice.</i>
     </div>
     </div>
     <div class="content">
-        <h1>🧪🎛️ [LAB] Homework 6</h1>
+        <h1>🧪 [LAB] Homework 6</h1>
         <canvas id="myCanvas" width="1300" height="650"></canvas>
         <br>
         <p style="display:none" id="canvasAlert">⚠️ Clicking on the graph, you can perform another execution</p>
+        <br>
+        <div style="text-align: center"        id="preload">
+        <img   src="https://38.media.tumblr.com/0e1137ee4d783767aa49e2f239387513/tumblr_mxzceoveF81rnaz59o1_500.gif">
+        <br>
+        <i>Adjust settings and click on Play button</i>
+             
+        </div>
     </div>
 </body>
-
 </html>

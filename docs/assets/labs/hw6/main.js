@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var canvas = document.getElementById("myCanvas");
         canvas.style.display = "block";
         document.getElementById("canvasAlert").style.display = "block"
+        document.getElementById("preload").style.display="none"
         start()
         // Add your canvas drawing or other logic here
     })
