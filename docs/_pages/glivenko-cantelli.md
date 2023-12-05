@@ -212,7 +212,7 @@ canvas_widget.pack()
 root.mainloop()
 ```
 #### 4.2.2 Results
-![Results of Glivenko Cantelli](../assets/thesis/thesis_4__py.gif)
+![Results of Glivenko Cantelli](https://owanesh.github.io/HWSTAT2324/assets/thesis/thesis_4__py.gif)
 
 ### 4.3 Interpretation of Simulation Results
 
