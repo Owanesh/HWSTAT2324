@@ -62,6 +62,7 @@ class AnimatedGraph extends Rectangle {
     buildUILabel(text) {
         this.context.strokeStyle = "black";
 
+
         this.context.fillText(text, (this.rect.x), (this.rect.y));
 
     }
@@ -89,7 +90,10 @@ class AnimatedGraph extends Rectangle {
             this.context.moveTo((this.rect.x + (i - 1) * spaceBetweenVerticals), this.rect.y);
             this.context.lineTo((this.rect.x + (i - 1) * spaceBetweenVerticals), (this.rect.height + this.rect.y));
             this.context.stroke();
+            if (this.nAtk > 100 && i % 50 == 0)
             this.context.fillText(((i)), (this.rect.x + (i - 1) * spaceBetweenVerticals), (this.rect.height + this.rect.y));
+            if (this.nAtk < 100 && i % 5 == 0)
+                this.context.fillText(((i)), (this.rect.x + (i - 1) * spaceBetweenVerticals), (this.rect.height + this.rect.y));
         }
     }
 
@@ -172,7 +176,7 @@ class AnimatedGraph extends Rectangle {
                 var sigma = this.extraParams['sigma']
                 var inc = mu + sigma * this.gaussianRand()
                 if (attack) return previousScore + Math.exp(inc);
-                else return previousScore - Math.exp(inc);
+                else return previousScore;
 
             case "SDEhullWHITE": // Hull-White tramite il metodo di Runge-Kutta
                 var sigma = Math.sqrt(this.nAtk * this.probability * (1 - this.probability));

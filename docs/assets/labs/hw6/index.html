@@ -7,45 +7,26 @@
     <script src="../hw3/utils/shapes.js"></script>
     <script src="../hw3/animated.js"></script>
     <script src="../hw3/attackMonitor.js"></script>
-
-
+    <link rel="stylesheet" href="../hw7/main.css">
+    <script defer src="main.js"></script>
 </head>
 
 <body>
-    <h1>🧪 [LAB] Homework 6</h1>
-    <canvas  id="myCanvas" width="1300" height="650"></canvas>
-    <br>
-    Probability<input id="probInput" placeholder="" step="0.1" type="number" min="0"
-    ">
+    <div class="sidebar">
+        <div id="displayValues"></div>
+        Probability<input id="probInput" placeholder="" step="0.1" type="number" min="0" ">
     Systems <input type=" number" placeholder="We suggest 100" id="sysInput" min="10" /><br>
-    S <input type=" number" placeholder="30" id="deadLine" min="10" /><br>
-    N <input type="number" step="10" placeholder="We suggest 30" id="nAttacks" min="10" /> <button
-        onclick="start()">Play</button>
-    <script>
-        const app = new DynamicObjManager("myCanvas");
-        const initialRectSize = { width: 1100, height: 500 };
-        function start() {
-            app.clear()
-            app.flushObjects()
-            const probInput = parseFloat(document.getElementById("probInput").value);
-            const sysInput = parseInt(document.getElementById("sysInput").value);
-            const nAttacks = parseInt(document.getElementById("nAttacks").value);
-           
-
-            // Aggiorna gli oggetti grafici con i nuovi valori
-            const graphSettings = { probability: probInput, nSystems: sysInput, nAttacks: nAttacks, mode:"GRP" };
-
-            const graphUISettings = {fill: "rgba(200, 200, 200, 0.5)", border: "black", borderWidth: 2 }
-
-            const attackManager = new AttackMonitor(graphSettings)
-            const attackMatrix = attackManager.getMatrix()
-
-            var graph1 = new AnimatedGraph(app.canvas, { ...initialRectSize, x: 10, y: 140}, { ...graphUISettings, label: "Gambler's Ruin Problem" }, graphSettings)
-            graph1.setAttackMatrix(attackMatrix)
-            graph1.setDeadTreshold(parseInt(document.getElementById("deadLine").value))
-            app.addObjects([graph1]);
-        }
-    </script>
+        S <input type=" number" placeholder="30" id="deadLine" min="10" /><br>
+        N <input type="number" step="10" placeholder="We suggest 30" id="nAttacks" min="10" /> <button
+            id="start">Play</button>
+    </div>
+    </div>
+    <div class="content">
+        <h1>🧪🎛️ [LAB] Homework 6</h1>
+        <canvas id="myCanvas" width="1300" height="650"></canvas>
+        <br>
+        <p style="display:none" id="canvasAlert">⚠️ Clicking on the graph, you can perform another execution</p>
+    </div>
 </body>
 
 </html>
