@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game of Life</title>
+    <script defer src="main.js"></script>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+  <div id="content">
+    <h1>Game of Life</h1>
+    <canvas id="gameCanvas" width="700" height="700"></canvas>
+  </div>
+
+  <div class="sidebar">
+    <h2>Regole del Gioco</h2>
+    <p>1. Una cella viva sopravvive con 2 o 3 vicini vivi.</p>
+    <p>2. Una cella morta viene ripopolata con esattamente 3 vicini vivi.</p>
+    <p>3. Altrimenti, le celle viventi muoiono per sovrappopolazione o solitudine.</p>
+<hr>
+    <button onclick="startGame()">Avvia il Gioco</button>
+    <button onclick="step()">Passo Successivo</button>
+    <button onclick="clearGrid()">Pulisci la Griglia</button>
+    <button onclick="generateRandom()">Genera Random</button>
+  <hr>
+    <button id="darkmode" class="dark-mode-button" onclick="toggleDarkMode()"> 🌙 Modalità Scura</button>
+  </div>
+</body>
+</html>
