@@ -111,7 +111,8 @@ The assumption of independence and identical distribution reflect the idealized 
 
 Formally stated, the  Glivenko-Cantelli theorem declares that, under the assumptions of independence and identical distribution, **the empirical distribution function converges to the true distribution function almost surely**. This convergence is uniform, meaning that it holds across the entire range of the distribution.
 
-Mathematically, let $F_n$ represent the empirical distribution function based on a sample of size $n$, and let $F$ represent the true distribution function. The theorem asserts that $\sup |F_n(x) - F(x)| \rightarrow 0$ as $n \rightarrow \infty$, where $\sup$ denotes the supremum, capturing the maximum discrepancy between the empirical and true distribution functions.
+Mathematically, let $F_n$ represent the empirical distribution function based on a sample of size $n$, and let $F$ represent the true distribution function. The theorem asserts that 
+$\sup |F_n(x) - F(x)| \rightarrow 0$ as $n \rightarrow \infty$, where $\sup$ denotes the supremum, capturing the maximum discrepancy between the empirical and true distribution functions.
 
 Understanding the formal statement of the Glivenko-Cantelli theorem sets the stage for its exploration and application. This statement encapsulates the essence of the theorem, highlighting the uniform convergence that distinguishes it from other convergence theorems.
 
